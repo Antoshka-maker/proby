@@ -1,0 +1,520 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Стоматология доктора Волкова · концепт главной</title>
+<meta name="description" content="Концепт главной страницы стоматологии: 3D-зуб, имплант при прокрутке, 3D-сканер и подбор оттенка">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Unbounded:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#f2f7f6;--muted:rgba(226,240,237,.68);--dim:rgba(226,240,237,.42);
+  --mint:#8ff0d6;--mint2:#38cfae;--pearl:#f7f2e8;--line:rgba(255,255,255,.12);--glass:rgba(255,255,255,.055);
+  --c1:#061417;--c2:#0d2c2d;--mx:70%;--my:40%;
+}
+*{box-sizing:border-box}
+html{background:#061417;scroll-behavior:smooth}
+body{margin:0;color:var(--ink);font:400 16px/1.55 Manrope,system-ui,sans-serif;background:transparent;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+#bg{position:fixed;inset:0;z-index:-3;background:radial-gradient(1200px 900px at var(--mx) var(--my),var(--c2),transparent 70%),linear-gradient(160deg,var(--c1),#03090b 80%)}
+#bg:after{content:"";position:absolute;inset:0;background:radial-gradient(600px 600px at 82% 18%,rgba(143,240,214,.07),transparent 70%),radial-gradient(700px 500px at 10% 90%,rgba(80,140,255,.06),transparent 70%)}
+.grain{position:fixed;inset:-50%;z-index:-1;pointer-events:none;opacity:.05;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+canvas#gl{position:fixed;inset:0;width:100vw;height:100vh;z-index:-2;display:block;pointer-events:none}
+
+header{position:fixed;top:0;left:0;right:0;z-index:20;display:flex;align-items:center;gap:28px;padding:20px clamp(16px,4vw,56px);transition:background .4s,backdrop-filter .4s}
+header.solid{background:rgba(5,14,16,.55);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+.logo{display:flex;align-items:center;gap:12px;color:var(--ink);text-decoration:none}
+.logo svg{width:34px;height:34px}
+.logo b{display:block;font:500 16px/1 Unbounded,sans-serif;letter-spacing:.01em}
+.logo small{display:block;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--dim);margin-top:5px;font-weight:600}
+nav{display:flex;gap:26px;margin-left:18px}
+nav a{color:var(--muted);text-decoration:none;font-size:14px;font-weight:500;transition:color .3s}
+nav a:hover{color:var(--ink)}
+.sp{flex:1}
+.btn{position:relative;display:inline-flex;align-items:center;gap:10px;padding:17px 26px;border-radius:999px;border:0;cursor:pointer;
+  background:linear-gradient(135deg,#b6ffe9,#5fe0bf 55%,#2fbf9f);color:#03221b;font:700 15px Manrope,sans-serif;text-decoration:none;
+  box-shadow:0 10px 40px -10px rgba(95,224,191,.65),inset 0 1px 0 rgba(255,255,255,.6);transition:transform .25s,box-shadow .3s;will-change:transform}
+.btn:hover{box-shadow:0 16px 60px -10px rgba(95,224,191,.9),inset 0 1px 0 rgba(255,255,255,.6)}
+.btn svg{width:16px;height:16px;transition:transform .3s}
+.btn:hover svg{transform:translateX(4px)}
+.btn.small{padding:12px 20px;font-size:14px}
+.ghost{display:inline-flex;align-items:center;gap:10px;color:var(--ink);text-decoration:none;font-weight:600;font-size:15px;padding:16px 8px}
+.ghost i{display:grid;place-items:center;width:34px;height:34px;border-radius:50%;border:1px solid var(--line);font-style:normal;transition:border-color .3s,transform .3s}
+.ghost:hover i{border-color:var(--mint);transform:translateY(3px)}
+
+main{position:relative;z-index:1}
+.wrap{width:100%;max-width:1320px;margin:0 auto;padding:0 clamp(16px,4vw,56px)}
+.screen{min-height:100vh;display:flex;align-items:center}
+.col{max-width:560px}
+.right .col{margin-left:auto}
+.eyebrow{display:inline-flex;align-items:center;gap:10px;font-size:13px;font-weight:600;letter-spacing:.06em;color:var(--muted);padding:8px 14px;border:1px solid var(--line);border-radius:999px;background:var(--glass);backdrop-filter:blur(8px);margin:0 0 26px}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--mint);box-shadow:0 0 12px var(--mint);animation:pulse 2s infinite}
+@keyframes pulse{50%{opacity:.35}}
+h1,h2{font-family:Unbounded,sans-serif;font-weight:500;letter-spacing:-.025em;margin:0}
+h1{font-size:clamp(38px,min(5.2vw,9.4vh),84px);line-height:1.02}
+h2{font-size:clamp(30px,3.6vw,54px);line-height:1.06}
+.grad{background:linear-gradient(100deg,#fff 0%,#c9fff0 35%,var(--mint) 60%,#fff 100%);background-size:220% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:shine 6s linear infinite}
+@keyframes shine{to{background-position:-220% 0}}
+.lead{font-size:clamp(16px,1.3vw,19px);color:var(--muted);margin:26px 0 34px;max-width:470px}
+.cta{display:flex;flex-wrap:wrap;align-items:center;gap:14px 22px}
+.rates{display:flex;gap:34px;margin-top:46px}
+.rates b{display:block;font:500 28px/1 Unbounded,sans-serif}
+.rates span{display:block;font-size:13px;color:var(--dim);margin-top:8px}
+.line-mask{display:block;overflow:hidden;padding-bottom:.06em}
+.line-mask>span{display:block;transform:translateY(105%);transition:transform 1.1s cubic-bezier(.2,.8,.1,1)}
+.ready .line-mask>span{transform:none}
+.ready .line-mask:nth-child(2)>span{transition-delay:.08s}
+.ready .line-mask:nth-child(3)>span{transition-delay:.16s}
+.fade{opacity:0;transform:translateY(24px);transition:opacity 1s .25s,transform 1s .25s cubic-bezier(.2,.8,.1,1)}
+.ready .fade,.in .fade,.fade.in{opacity:1;transform:none}
+.scroll-hint{position:absolute;left:50%;bottom:26px;transform:translateX(-50%);font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--dim);display:flex;flex-direction:column;align-items:center;gap:10px}
+.scroll-hint:after{content:"";width:1px;height:44px;background:linear-gradient(var(--mint),transparent);animation:drop 2s infinite}
+@keyframes drop{0%{transform:scaleY(0);transform-origin:top}50%{transform:scaleY(1);transform-origin:top}51%{transform-origin:bottom}100%{transform:scaleY(0);transform-origin:bottom}}
+#hero{position:relative}
+#hero .wrap{padding-top:96px;padding-bottom:40px}
+
+.marquee{overflow:hidden;border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:22px 0;background:rgba(3,10,12,.35);backdrop-filter:blur(6px)}
+.marquee div{display:flex;gap:46px;width:max-content;animation:mq 38s linear infinite;font:400 clamp(20px,2.4vw,34px)/1 Unbounded,sans-serif;color:rgba(242,247,246,.85);white-space:nowrap}
+.marquee span:nth-child(even){color:var(--mint)}
+@keyframes mq{to{transform:translateX(-50%)}}
+
+.pin{position:relative}
+.pin .stick{position:sticky;top:0;height:100vh;display:flex;align-items:center}
+#implant{height:420vh}
+#scan{height:260vh}
+#shade{height:260vh}
+.kicker{font-size:13px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--mint);margin:0 0 18px;display:flex;align-items:center;gap:12px}
+.kicker:before{content:"";width:28px;height:1px;background:var(--mint)}
+.steps{list-style:none;padding:0;margin:34px 0 0;display:grid;gap:8px}
+.steps li{display:grid;grid-template-columns:52px 1fr;gap:4px 10px;padding:16px 18px;border-radius:18px;border:1px solid transparent;opacity:.36;transition:opacity .5s,background .5s,border-color .5s}
+.steps li.on{opacity:1;background:var(--glass);border-color:var(--line);backdrop-filter:blur(10px)}
+.steps em{font:500 13px Unbounded,sans-serif;font-style:normal;color:var(--mint);padding-top:3px}
+.steps b{font-size:18px;font-weight:700}
+.steps p{grid-column:2;margin:0;color:var(--muted);font-size:15px}
+.bar{height:2px;background:var(--line);border-radius:2px;margin-top:22px;overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--mint2),var(--mint))}
+
+.tag{position:fixed;left:0;top:0;z-index:5;pointer-events:none;opacity:0;display:flex;align-items:center;gap:0;white-space:nowrap}
+.tag span{font-size:13px;font-weight:600;padding:8px 13px;border-radius:999px;background:rgba(6,18,20,.6);border:1px solid rgba(143,240,214,.35);backdrop-filter:blur(8px);color:var(--ink)}
+.tag i{display:block;width:70px;height:1px;background:linear-gradient(90deg,rgba(143,240,214,.8),rgba(143,240,214,.1))}
+.tag:after{content:"";width:7px;height:7px;border-radius:50%;background:var(--mint);box-shadow:0 0 10px var(--mint)}
+.tag.l{flex-direction:row-reverse}
+.tag.l i{background:linear-gradient(270deg,rgba(143,240,214,.8),rgba(143,240,214,.1))}
+
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:38px}
+.stats div{padding:18px;border-radius:18px;border:1px solid var(--line);background:var(--glass);backdrop-filter:blur(10px)}
+.stats b{display:block;font:500 24px/1.1 Unbounded,sans-serif;color:var(--mint)}
+.stats span{display:block;font-size:13px;color:var(--muted);margin-top:8px;line-height:1.35}
+.scanline{font:500 12px/1 Unbounded,sans-serif;letter-spacing:.12em;color:var(--mint);margin-top:28px;display:flex;gap:10px;align-items:center}
+.scanline i{flex:1;max-width:220px;height:3px;border-radius:3px;background:rgba(143,240,214,.15);overflow:hidden}
+.scanline i:before{content:"";display:block;height:100%;width:var(--sp,0%);background:var(--mint)}
+
+.shade-box{margin-top:34px;padding:24px;border-radius:24px;border:1px solid var(--line);background:rgba(20,16,12,.45);backdrop-filter:blur(12px)}
+.shade-top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:18px}
+.shade-top b{font:500 30px/1 Unbounded,sans-serif}
+.shade-top span{color:var(--muted);font-size:14px}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:46px;background:transparent;cursor:grab}
+input[type=range]::-webkit-slider-runnable-track{height:12px;border-radius:12px;background:linear-gradient(90deg,#d6bf93,#e4d1aa,#efe3c6,#f6efe0,#fbf9f2,#fff)}
+input[type=range]::-moz-range-track{height:12px;border-radius:12px;background:linear-gradient(90deg,#d6bf93,#e4d1aa,#efe3c6,#f6efe0,#fbf9f2,#fff)}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:30px;height:30px;margin-top:-9px;border-radius:50%;background:#fff;border:4px solid var(--mint2);box-shadow:0 4px 20px rgba(0,0,0,.4)}
+input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:50%;background:#fff;border:4px solid var(--mint2)}
+.chips{display:flex;justify-content:space-between;font-size:12px;font-weight:700;color:var(--dim);margin-top:4px}
+.chips span.on{color:var(--ink)}
+
+section.plain{padding:150px 0 40px}
+.docs{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:46px}
+.doc{position:relative;padding:28px;border-radius:26px;border:1px solid var(--line);background:linear-gradient(160deg,rgba(255,255,255,.07),rgba(255,255,255,.02));backdrop-filter:blur(12px);overflow:hidden;transition:transform .5s cubic-bezier(.2,.8,.1,1),border-color .4s}
+.doc:hover{transform:translateY(-6px);border-color:rgba(143,240,214,.4)}
+.doc .av{width:64px;height:64px;border-radius:20px;display:grid;place-items:center;font:500 20px Unbounded,sans-serif;color:#03221b;background:linear-gradient(135deg,#d9fff3,#69e3c4)}
+.doc b{display:block;font-size:19px;margin:22px 0 6px}
+.doc span{color:var(--muted);font-size:15px}
+.revs{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:16px}
+.rev{padding:26px;border-radius:26px;background:rgba(247,242,232,.06);border:1px solid var(--line)}
+.rev .st{color:#ffd88a;letter-spacing:3px;font-size:14px}
+.rev p{margin:14px 0 18px;font-size:16px;line-height:1.5}
+.rev small{color:var(--dim);font-size:13px}
+.final{margin-top:120px;padding:clamp(28px,5vw,64px);border-radius:36px;background:linear-gradient(130deg,rgba(143,240,214,.16),rgba(143,240,214,.03) 60%),rgba(5,16,18,.6);border:1px solid rgba(143,240,214,.25);display:grid;grid-template-columns:1.2fr 1fr;gap:40px;align-items:center;backdrop-filter:blur(14px)}
+.final form{display:grid;gap:12px}
+.final input{width:100%;padding:18px 20px;border-radius:16px;border:1px solid var(--line);background:rgba(0,0,0,.25);color:var(--ink);font:500 16px Manrope,sans-serif;outline:none;transition:border-color .3s}
+.final input:focus{border-color:var(--mint)}
+.final .btn{justify-content:center}
+.final .ok{display:none;color:var(--mint);font-weight:600}
+footer{padding:46px 0 60px;color:var(--dim);font-size:13px;display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap}
+
+#loader{position:fixed;inset:0;z-index:50;display:grid;place-items:center;background:#051113;transition:opacity .9s .1s,visibility .9s .1s}
+#loader.done{opacity:0;visibility:hidden}
+#loader div{text-align:center}
+#loader b{display:block;font:500 64px/1 Unbounded,sans-serif;color:var(--mint)}
+#loader span{font-size:13px;letter-spacing:.2em;text-transform:uppercase;color:var(--dim)}
+
+@media (max-width:900px){
+  nav,.hide-m,.logo small{display:none}
+  .logo b{white-space:nowrap}
+  .screen{align-items:flex-end;padding-bottom:84px}
+  .pin .stick{align-items:flex-end;padding-bottom:28px}
+  .col{max-width:none}
+  #hero .col{padding-top:40vh}
+  #hero .wrap{padding-top:0;padding-bottom:0}
+  .screen{padding-bottom:40px}
+  .eyebrow{margin-bottom:16px;font-size:12px}
+  h1{font-size:clamp(34px,10vw,54px)}
+  .lead{margin:18px 0 24px}
+  .rates{gap:22px;margin-top:30px}
+  .rates b{font-size:22px}
+  .steps{margin-top:18px;gap:4px}
+  .steps li{padding:10px 12px;grid-template-columns:40px 1fr}
+  .steps li:not(.on){display:none}
+  .stats{grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:20px}
+  .stats div{padding:12px}.stats b{font-size:17px}.stats span{font-size:12px}
+  .stick .col{background:linear-gradient(0deg,rgba(4,12,14,.85) 60%,rgba(4,12,14,0));margin:0 -16px;padding:40px 16px 0}
+  .shade-box{padding:16px;margin-top:18px}
+  .docs,.revs{grid-template-columns:1fr}
+  .final{grid-template-columns:1fr}
+  .tag span{font-size:11px;padding:6px 10px}.tag i{width:30px}
+  .scroll-hint{display:none}
+}
+@media (prefers-reduced-motion:reduce){.marquee div,.grad,.dot{animation:none}}
+</style>
+</head>
+<body>
+<div id="bg"></div><div class="grain"></div>
+<canvas id="gl"></canvas>
+<div id="loader"><div><b id="pct">0</b><span>готовим улыбку</span></div></div>
+
+<header id="hdr">
+  <a class="logo" href="#hero">
+    <svg viewBox="0 0 40 40" fill="none"><path d="M20 9c-3-2.6-9.5-3.2-11.6 1.7-1.9 4.5.4 8.5 1.5 12.6.9 3.4 1.2 9.4 3.9 9.4 2.6 0 2.5-6.8 6.2-6.8s3.6 6.8 6.2 6.8c2.7 0 3-6 3.9-9.4 1.1-4.1 3.4-8.1 1.5-12.6C29.5 5.8 23 6.4 20 9Z" stroke="url(#lg)" stroke-width="2"/><defs><linearGradient id="lg" x1="8" y1="6" x2="32" y2="34"><stop stop-color="#fff"/><stop offset="1" stop-color="#5fe0bf"/></linearGradient></defs></svg>
+    <span><b>Доктор Волков</b><small>стоматология · Тверь</small></span>
+  </a>
+  <nav><a href="#implant">Имплантация</a><a href="#scan">Диагностика</a><a href="#shade">Отбеливание</a><a href="#doctors">Врачи</a><a href="#reviews">Отзывы</a></nav>
+  <span class="sp"></span>
+  <a class="btn small magnet" href="#book">Записаться</a>
+</header>
+
+<main>
+  <section id="hero" class="screen">
+    <div class="wrap"><div class="col">
+      <p class="eyebrow fade"><span class="dot"></span>Тверь, ул. Павлова, 17 · пн–сб 10:00–19:00</p>
+      <h1><span class="line-mask"><span>Улыбка,</span></span><span class="line-mask"><span>которую <span class="grad">не хочется</span></span></span><span class="line-mask"><span>прятать</span></span></h1>
+      <p class="lead fade">Имплантация, коронки из диоксида циркония, брекеты и отбеливание. Врачи, к которым пациенты ходят годами</p>
+      <div class="cta fade">
+        <a class="btn magnet" href="#book">Записаться на консультацию <svg viewBox="0 0 16 16" fill="none"><path d="M2 8h11M9 3.5 13.5 8 9 12.5" stroke="currentColor" stroke-width="2"/></svg></a>
+        <a class="ghost" href="#implant"><i>↓</i>Как ставят имплант</a>
+      </div>
+      <div class="rates fade"><div><b>5,0</b><span>рейтинг на Zoon</span></div><div><b>4,7</b><span>Яндекс Карты</span></div><div class="hide-m"><b>3</b><span>врача с именами<br>в отзывах</span></div></div>
+    </div></div>
+    <div class="scroll-hint">листайте</div>
+  </section>
+
+  <div class="marquee"><div>
+    <span>Имплантация</span><span>✦</span><span>Коронки из диоксида циркония</span><span>✦</span><span>Отбеливание</span><span>✦</span><span>Брекеты</span><span>✦</span><span>Лечение каналов</span><span>✦</span><span>Гигиена</span><span>✦</span>
+    <span>Имплантация</span><span>✦</span><span>Коронки из диоксида циркония</span><span>✦</span><span>Отбеливание</span><span>✦</span><span>Брекеты</span><span>✦</span><span>Лечение каналов</span><span>✦</span><span>Гигиена</span><span>✦</span>
+  </div></div>
+
+  <section id="implant" class="pin">
+    <div class="stick"><div class="wrap"><div class="col">
+      <p class="kicker">Имплантация</p>
+      <h2>Новый зуб<br>за четыре шага</h2>
+      <ol class="steps" id="steps">
+        <li class="on"><em>01</em><b>Снимок и план</b><p>Смотрим кость объёмно и заранее подбираем размер импланта</p></li>
+        <li><em>02</em><b>Имплант</b><p>Титановый винт встаёт на место корня и срастается с костью</p></li>
+        <li><em>03</em><b>Абатмент</b><p>Переходник, на котором будет держаться коронка</p></li>
+        <li><em>04</em><b>Коронка</b><p>Диоксид циркония: прочная и по цвету как свой зуб</p></li>
+      </ol>
+      <div class="bar"><i id="ibar"></i></div>
+    </div></div></div>
+  </section>
+
+  <section id="scan" class="pin right">
+    <div class="stick"><div class="wrap"><div class="col">
+      <p class="kicker">Диагностика</p>
+      <h2>Видим зуб насквозь до начала лечения</h2>
+      <p class="lead">Объёмный снимок показывает корни, каналы и кость. Вы видите план и смету до того, как врач возьмёт инструмент</p>
+      <div class="stats"><div><b>3D</b><span>снимок перед имплантацией</span></div><div><b>1</b><span>план и смета до лечения</span></div><div><b>0</b><span>сюрпризов в цене по ходу</span></div></div>
+      <div class="scanline">СКАН <i id="sbar"></i> <span id="spct">0%</span></div>
+    </div></div></div>
+  </section>
+
+  <section id="shade" class="pin">
+    <div class="stick"><div class="wrap"><div class="col">
+      <p class="kicker">Отбеливание</p>
+      <h2>Посмотрите, какой станет улыбка</h2>
+      <div class="shade-box">
+        <div class="shade-top"><b id="shName">A3.5</b><span id="shNote">ваш оттенок сейчас</span></div>
+        <input id="shRange" type="range" min="0" max="5" step="0.001" value="0" aria-label="Оттенок зубов по шкале VITA">
+        <div class="chips" id="chips"><span>A3.5</span><span>A3</span><span>A2</span><span>A1</span><span>B1</span><span>BL2</span></div>
+      </div>
+      <p class="lead" style="margin-bottom:0">Потяните ползунок. Шкала VITA, по которой врач подбирает цвет зубов и коронок</p>
+    </div></div></div>
+  </section>
+
+  <section id="doctors" class="plain"><div class="wrap">
+    <p class="kicker">Врачи</p>
+    <h2>Пациенты приходят<br>к конкретным людям</h2>
+    <div class="docs">
+      <div class="doc fade"><div class="av">ИВ</div><b>Илья Сергеевич Волков</b><span>Коронки, протезирование, имплантация</span></div>
+      <div class="doc fade"><div class="av">СК</div><b>Светлана Леонидовна Конышева</b><span>Лечение зубов и каналов, гигиена</span></div>
+      <div class="doc fade"><div class="av">СВ</div><b>Симрал Эйвазович Вердиев</b><span>Врач-стоматолог</span></div>
+    </div>
+    <div class="revs" id="reviews">
+      <div class="rev fade"><div class="st">★★★★★</div><p>Хожу к Светлане Леонидовне уже 6 или 7 лет, и каждый раз всё проходит отлично</p><small>Павел, отзыв на Zoon</small></div>
+      <div class="rev fade"><div class="st">★★★★★</div><p>Коронку из диоксида циркония ставил Илья Сергеевич. Результат качественный</p><small>Ирина, отзыв на Zoon</small></div>
+      <div class="rev fade"><div class="st">★★★★★</div><p>Сдал протез на ремонт в 10 утра, а к половине пятого всё было готово</p><small>Руслан, отзыв на Zoon</small></div>
+    </div>
+
+    <div class="final" id="book">
+      <div><p class="kicker">Запись</p><h2>Первая консультация без спешки</h2><p class="lead" style="margin-bottom:0">Оставьте телефон, администратор перезвонит и подберёт удобное время</p></div>
+      <form id="form" onsubmit="event.preventDefault();this.querySelector('.ok').style.display='block'">
+        <input placeholder="Как к вам обращаться" autocomplete="off">
+        <input placeholder="+7 (___) ___-__-__" inputmode="tel" autocomplete="off">
+        <button class="btn magnet" type="submit">Перезвоните мне</button>
+        <div class="ok">Это концепт, заявка никуда не ушла</div>
+      </form>
+    </div>
+    <footer><span>Концепт главной страницы для стоматологии доктора Волкова. Не официальный сайт клиники</span><span>3D-модель и анимация: three.js</span></footer>
+  </div></section>
+</main>
+
+<div class="tag" id="tagCrown"><span>Коронка · диоксид циркония</span><i></i></div>
+<div class="tag" id="tagAbut"><span>Абатмент</span><i></i></div>
+<div class="tag" id="tagImpl"><span>Титановый имплант</span><i></i></div>
+
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
+<script type="module">
+import * as THREE from 'three';
+import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
+import {RoomEnvironment} from 'three/addons/environments/RoomEnvironment.js';
+
+const REC=location.search.includes('rec');
+const $=s=>document.querySelector(s);
+const clamp=(x,a=0,b=1)=>Math.min(b,Math.max(a,x));
+const sm=(a,b,x)=>{const t=clamp((x-a)/(b-a));return t*t*(3-2*t)};
+const lerp=(a,b,t)=>a+(b-a)*t;
+const mobile=()=>innerWidth<=900;
+
+const canvas=$('#gl');
+const renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:true,powerPreference:'high-performance'});
+renderer.setPixelRatio(Math.min(devicePixelRatio,mobile()?2:1.75));
+renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.05;
+renderer.outputColorSpace=THREE.SRGBColorSpace;
+const scene=new THREE.Scene();
+const camera=new THREE.PerspectiveCamera(28,1,.1,60);camera.position.set(0,0,6);
+const pmrem=new THREE.PMREMGenerator(renderer);
+scene.environment=pmrem.fromScene(new RoomEnvironment(),.04).texture;
+scene.environmentIntensity=.9;
+
+const key=new THREE.DirectionalLight(0xffffff,1.7);key.position.set(3,4,5);scene.add(key);
+const rim=new THREE.DirectionalLight(0x8ff0d6,2.4);rim.position.set(-4,2,-3);scene.add(rim);
+const rim2=new THREE.DirectionalLight(0x7aa8ff,1.1);rim2.position.set(4,-2,-4);scene.add(rim2);
+const spot=new THREE.PointLight(0xffffff,5,7,1.6);scene.add(spot);
+
+// --- шум для растворения
+const NOISE=`
+float h31(vec3 p){p=fract(p*.3183099+.1);p*=17.;return fract(p.x*p.y*p.z*(p.x+p.y+p.z));}
+float vnoise(vec3 x){vec3 i=floor(x),f=fract(x);f=f*f*(3.-2.*f);
+return mix(mix(mix(h31(i),h31(i+vec3(1,0,0)),f.x),mix(h31(i+vec3(0,1,0)),h31(i+vec3(1,1,0)),f.x),f.y),
+mix(mix(h31(i+vec3(0,0,1)),h31(i+vec3(1,0,1)),f.x),mix(h31(i+vec3(0,1,1)),h31(i+vec3(1,1,1)),f.x),f.y),f.z);}`;
+
+function toothMat(side){
+  const m=new THREE.MeshPhysicalMaterial({color:0xffffff,vertexColors:true,roughness:.2,metalness:0,clearcoat:1,clearcoatRoughness:.07,
+    sheen:.35,sheenColor:new THREE.Color(0xffffff),sheenRoughness:.4,ior:1.62,specularIntensity:1,side:THREE.DoubleSide});
+  m.userData.u={uSplit:{value:.08},uSide:{value:side},uDiss:{value:0},uEdge:{value:new THREE.Color(0x8ff0d6)}};
+  m.onBeforeCompile=sh=>{
+    Object.assign(sh.uniforms,m.userData.u);
+    sh.vertexShader=sh.vertexShader.replace('#include <common>','#include <common>\nvarying vec3 vOP;').replace('#include <begin_vertex>','#include <begin_vertex>\nvOP=position;');
+    sh.fragmentShader=sh.fragmentShader.replace('#include <common>','#include <common>\nvarying vec3 vOP;uniform float uSplit,uSide,uDiss;uniform vec3 uEdge;'+NOISE)
+     .replace('#include <clipping_planes_fragment>',`#include <clipping_planes_fragment>
+      if(uSide>.5&&vOP.y<uSplit)discard;
+      if(uSide<-.5&&vOP.y>uSplit)discard;
+      float nn=vnoise(vOP*9.)*.7+vnoise(vOP*27.)*.3;
+      float dd=nn-uDiss*1.12;
+      if(uDiss>.001&&dd<0.)discard;
+      float edge=(1.-smoothstep(0.,.07,dd))*step(.001,uDiss);`)
+     .replace('#include <color_fragment>','#include <color_fragment>\nif(!gl_FrontFacing)diffuseColor.rgb=vec3(.86,.72,.5);')
+     .replace('#include <emissivemap_fragment>','#include <emissivemap_fragment>\ntotalEmissiveRadiance+=uEdge*edge*3.;');
+  };
+  return m;
+}
+
+const holoMat=new THREE.ShaderMaterial({transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,side:THREE.DoubleSide,
+  uniforms:{uA:{value:0},uScan:{value:0},uC:{value:new THREE.Color(0x56f0cf)}},
+  vertexShader:`varying vec3 vN,vV,vP;void main(){vP=position;vN=normalize(normalMatrix*normal);vec4 mv=modelViewMatrix*vec4(position,1.);vV=normalize(-mv.xyz);gl_Position=projectionMatrix*mv;}`,
+  fragmentShader:`uniform float uA,uScan;uniform vec3 uC;varying vec3 vN,vV,vP;
+  void main(){float fr=pow(1.-abs(dot(normalize(vN),vV)),2.);float g=smoothstep(.85,1.,abs(sin(vP.y*110.)))*.5;
+  float b=exp(-pow((vP.y-uScan)*24.,2.));float a=(fr*.85+g*.35+b*1.1+.04)*uA;
+  gl_FragColor=vec4((uC*(fr+g+.25)+vec3(.9,1.,1.)*b)*a,a);}`});
+const ptsMat=new THREE.ShaderMaterial({transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,
+  uniforms:{uA:{value:0},uScan:{value:0},uPx:{value:1}},
+  vertexShader:`uniform float uScan,uPx;varying float vB;void main(){vB=exp(-pow((position.y-uScan)*14.,2.));vec4 mv=modelViewMatrix*vec4(position,1.);gl_PointSize=uPx*(1.4+vB*2.6);gl_Position=projectionMatrix*mv;}`,
+  fragmentShader:`uniform float uA;varying float vB;void main(){vec2 c=gl_PointCoord-.5;if(dot(c,c)>.25)discard;float a=(.22+vB)*uA;gl_FragColor=vec4(vec3(.6,1.,.92)*a,a);}`});
+
+const ti=new THREE.MeshPhysicalMaterial({color:0xc6ccd3,metalness:1,roughness:.3,clearcoat:.4,clearcoatRoughness:.2,transparent:true,opacity:0});
+const gold=new THREE.MeshPhysicalMaterial({color:0xe2c98f,metalness:1,roughness:.26,clearcoat:.5,transparent:true,opacity:0});
+
+const rig=new THREE.Group();scene.add(rig);
+const spin=new THREE.Group();rig.add(spin);
+const T=new THREE.Group();T.scale.setScalar(1.6);spin.add(T);
+const SPLIT=.08;
+
+// имплант
+const implant=new THREE.Group(),abut=new THREE.Group();
+{
+  const L=.5,rT=.12,rB=.08,V=THREE.Vector2,p=[];
+  p.push(new V(0,-L));for(let i=1;i<=8;i++){const a=i/8*Math.PI/2;p.push(new V(rB*Math.sin(a),-L+rB*(1-Math.cos(a))*.9))}
+  p.push(new V(rT*.86,-.07),new V(rT,-.035),new V(rT,0),new V(rT*.62,0),new V(rT*.6,.012),new V(0,.012));
+  implant.add(new THREE.Mesh(new THREE.LatheGeometry(p,72),ti));
+  class Helix extends THREE.Curve{getPoint(t,o=new THREE.Vector3()){const y=-.075-t*(L-.13),r=lerp(rT*.86,rB*.98,t)+.004,a=t*Math.PI*2*10;return o.set(Math.cos(a)*r,y,Math.sin(a)*r)}}
+  implant.add(new THREE.Mesh(new THREE.TubeGeometry(new Helix(),900,.021,6,false),ti));
+  implant.position.y=SPLIT;T.add(implant);
+  const q=[new V(0,0),new V(rT*.95,0),new V(rT*.95,.02),new V(.1,.035),new V(.075,.2),new V(.06,.225),new V(0,.23)];
+  const ab=new THREE.Mesh(new THREE.LatheGeometry(q,6),gold);ab.rotation.y=Math.PI/6;abut.add(ab);
+  const neck=new THREE.Mesh(new THREE.CylinderGeometry(.085,.1,.03,48),gold);neck.position.y=.015;abut.add(neck);
+  abut.position.y=SPLIT;T.add(abut);
+}
+const aCrown=new THREE.Object3D(),aAbut=new THREE.Object3D(),aImpl=new THREE.Object3D();
+aAbut.position.set(.08,.12,0);abut.add(aAbut);aImpl.position.set(-.12,-.24,0);implant.add(aImpl);
+
+let crown,roots,holo,pts,ready=false,loadP=0;
+const crownMat=toothMat(1),rootMat=toothMat(-1);
+new GLTFLoader().load('tooth.glb',g=>{
+  let geo;g.scene.traverse(o=>{if(o.isMesh&&!geo)geo=o.geometry});
+  geo=geo.clone();geo.deleteAttribute('normal');geo.computeVertexNormals();
+  const pos=geo.attributes.position,col=new Float32Array(pos.count*3),c=new THREE.Color(),cr=new THREE.Color(0xffffff),ro=new THREE.Color(0xe9dcc0);
+  for(let i=0;i<pos.count;i++){c.copy(ro).lerp(cr,sm(-.02,.16,pos.getY(i)));col.set([c.r,c.g,c.b],i*3)}
+  geo.setAttribute('color',new THREE.BufferAttribute(col,3));
+  crown=new THREE.Mesh(geo,crownMat);roots=new THREE.Mesh(geo,rootMat);T.add(crown,roots);
+  crown.add(aCrown);aCrown.position.set(.3,.33,0);
+  holo=new THREE.Mesh(geo,holoMat);holo.scale.setScalar(1.004);T.add(holo);
+  const step=5,pp=[];for(let i=0;i<pos.count;i+=step)pp.push(pos.getX(i),pos.getY(i),pos.getZ(i));
+  const pg=new THREE.BufferGeometry();pg.setAttribute('position',new THREE.Float32BufferAttribute(pp,3));
+  pts=new THREE.Points(pg,ptsMat);pts.scale.setScalar(1.012);T.add(pts);
+  ready=true;
+},e=>{if(e.total)loadP=e.loaded/e.total});
+
+// кольцо сканера
+const ring=new THREE.Mesh(new THREE.TorusGeometry(.46,.004,8,128),new THREE.MeshBasicMaterial({color:0x8ff0d6,transparent:true,opacity:0,blending:THREE.AdditiveBlending,depthWrite:false}));
+ring.rotation.x=Math.PI/2;T.add(ring);
+
+// пузырьки
+const N=420,bp=new Float32Array(N*3),bs=new Float32Array(N);
+for(let i=0;i<N;i++){bp.set([(Math.random()-.5)*12,(Math.random()-.5)*8,-Math.random()*6+1],i*3);bs[i]=Math.random()}
+const bg=new THREE.BufferGeometry();bg.setAttribute('position',new THREE.BufferAttribute(bp,3));bg.setAttribute('seed',new THREE.BufferAttribute(bs,1));
+const bubMat=new THREE.ShaderMaterial({transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,uniforms:{uT:{value:0},uPx:{value:1},uS:{value:0}},
+  vertexShader:`attribute float seed;uniform float uT,uPx,uS;varying float vA;void main(){vec3 p=position;p.y=mod(p.y+uT*(.08+seed*.12)+uS*1.5+4.,8.)-4.;p.x+=sin(uT*.4+seed*20.)*.15;
+  vec4 mv=modelViewMatrix*vec4(p,1.);gl_PointSize=uPx*(2.+seed*5.)*(4./-mv.z);vA=.15+seed*.35;gl_Position=projectionMatrix*mv;}`,
+  fragmentShader:`varying float vA;void main(){vec2 c=gl_PointCoord-.5;float d=length(c);if(d>.5)discard;float a=smoothstep(.5,.2,d)*vA;gl_FragColor=vec4(vec3(.6,1.,.9)*a,a);}`});
+scene.add(new THREE.Points(bg,bubMat));
+
+// оттенки VITA
+const SH=[['A3.5','#d8c193','ваш оттенок сейчас'],['A3','#e3d0a9','на 1 тон светлее'],['A2','#ecdeba','на 2 тона светлее'],['A1','#f2e8cf','на 4 тона светлее'],['B1','#f7f1e2','на 6 тонов светлее'],['BL2','#fcfaf3','после отбеливания']].map(s=>[s[0],new THREE.Color(s[1]),s[2]]);
+const shRange=$('#shRange'),chips=[...document.querySelectorAll('#chips span')];let shUser=false,shVal=0;
+shRange.addEventListener('input',()=>{shUser=true;shVal=+shRange.value});
+function shadeColor(v,out){const i=Math.min(4,Math.floor(v)),f=v-i;return out.copy(SH[i][1]).lerp(SH[i+1][1],f)}
+
+// мышь
+let mx=0,my=0,tmx=0,tmy=0;
+addEventListener('pointermove',e=>{tmx=e.clientX/innerWidth*2-1;tmy=e.clientY/innerHeight*2-1;
+  document.documentElement.style.setProperty('--mx',e.clientX+'px');document.documentElement.style.setProperty('--my',e.clientY+'px')},{passive:true});
+document.querySelectorAll('.magnet').forEach(b=>{b.addEventListener('pointermove',e=>{const r=b.getBoundingClientRect();b.style.transform=`translate(${(e.clientX-r.left-r.width/2)*.18}px,${(e.clientY-r.top-r.height/2)*.3}px)`});b.addEventListener('pointerleave',()=>b.style.transform='')});
+
+const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting)e.target.classList.add('in')}),{threshold:.2});
+document.querySelectorAll('section.plain .fade').forEach(el=>io.observe(el));
+
+function resize(){const w=innerWidth,h=innerHeight;renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix();
+  const px=renderer.getPixelRatio();ptsMat.uniforms.uPx.value=px;bubMat.uniforms.uPx.value=px}
+addEventListener('resize',resize);resize();
+
+const secs={implant:$('#implant'),scan:$('#scan'),shade:$('#shade'),doctors:$('#doctors')};
+const prog=el=>clamp((scrollY-el.offsetTop)/(el.offsetHeight-innerHeight));
+const enter=(el,span=1)=>clamp((scrollY-(el.offsetTop-innerHeight*span))/(innerHeight*span));
+
+const S={x:1.2,y:0,s:1,ry:0,rx:.15,lift:0,rd:0,cd:0,imp:0,ab:0,holo:0,scanA:0,tags:0,out:0,intro:0};
+const D={...S};let t=0,intro=0,startT=null;
+const steps=[...document.querySelectorAll('#steps li')],ibar=$('#ibar'),sbar=$('#sbar'),spct=$('#spct'),hdr=$('#hdr');
+const tags=[[$('#tagCrown'),aCrown],[$('#tagAbut'),aAbut],[$('#tagImpl'),aImpl]];
+const BGS=[['#061417','#0d2c2d'],['#050c17','#0f2340'],['#020a0b','#053030'],['#120d09','#33261a'],['#061214','#0b2526']];
+const cA=new THREE.Color(),cB=new THREE.Color(),tmpC=new THREE.Color(),v3=new THREE.Vector3();
+let lastSh=-1;
+
+function frame(dt){
+  t+=dt;
+  if(ready&&startT===null){startT=t;$('#loader').classList.add('done');document.body.classList.add('ready')}
+  intro=startT===null?0:sm(0,2.2,t-startT);
+  mx+=(tmx-mx)*(1-Math.exp(-dt*4));my+=(tmy-my)*(1-Math.exp(-dt*4));
+  const m=mobile(),vh=innerHeight;
+  const pH=clamp(scrollY/vh),pI=prog(secs.implant),eI=enter(secs.implant),pS=prog(secs.scan),eS=enter(secs.scan,.7),pW=prog(secs.shade),eW=enter(secs.shade,.7),eD=enter(secs.doctors,.9);
+  // цели
+  const side=m?0:1;
+  let x=1.25*side,y=m?.6:0,s=m?.52:1;
+  let ryT=null;
+  // имплант
+  const lift=sm(.06,.3,pI)-sm(.8,.97,pI);
+  const rd=sm(.12,.4,pI)*(1-sm(.15,.75,eW));
+  const imp=sm(.33,.6,pI)*(1-sm(.1,.6,eS));
+  const ab=sm(.55,.72,pI)*(1-sm(.1,.6,eS));
+  if(eI>0){x=lerp(x,1.05*side,eI);y=lerp(y,m?.36:-.32,eI);s=lerp(s,m?.48:.86,eI)}
+  // скан
+  const holoT=sm(.2,.8,eS)*(1-sm(.3,.9,eW));
+  const cd=sm(.1,.7,eS)*(1-sm(.15,.75,eW));
+  if(eS>0){x=lerp(x,-1.2*side,sm(0,1,eS));y=lerp(y,m?.58:0,eS);s=lerp(s,m?.54:1.08,eS)}
+  // отбеливание
+  if(eW>0){x=lerp(x,1.15*side,sm(0,1,eW));y=lerp(y,m?.42:-.28,eW);s=lerp(s,m?.6:1.22,eW)}
+  const out=eD;
+  y+=out*3.4;
+  // применение с затуханием
+  const k=1-Math.exp(-dt*5);
+  for(const [n,v] of Object.entries({x,y,s,lift,rd,cd,imp,ab,holo:holoT}))D[n]+=(v-D[n])*k;
+  D.out=out;
+  rig.position.set(D.x+mx*.06,D.y-(1-intro)*1.2,0);
+  rig.scale.setScalar(D.s*lerp(.6,1,intro));
+  const calm=clamp(eI*(1-eS)+eW*.7);
+  spin.rotation.y=lerp(t*.35+intro*2.5,Math.sin(t*.4)*.35+.5,calm)+mx*.35;
+  spin.rotation.x=.12+my*.12+(1-intro)*.4;
+  spin.rotation.z=-.08+mx*-.04;
+  T.position.y=Math.sin(t*1.1)*.03;
+  if(ready){
+    crown.position.y=D.lift*.34;crown.rotation.y=D.lift*.6;crown.rotation.z=D.lift*.08;
+    rootMat.userData.u.uDiss.value=D.rd;crownMat.userData.u.uDiss.value=D.cd;
+    roots.visible=D.rd<.995;crown.visible=D.cd<.995;
+    holoMat.uniforms.uA.value=D.holo;ptsMat.uniforms.uA.value=D.holo;holo.visible=pts.visible=D.holo>.005;
+    const scan=Math.sin(t*1.3)*.5;holoMat.uniforms.uScan.value=ptsMat.uniforms.uScan.value=scan;
+    ring.position.y=scan;ring.material.opacity=D.holo*.9;ring.scale.setScalar(1-Math.abs(scan)*.55);
+    // оттенок
+    if(!shUser){shVal=sm(.08,.85,pW)*5;shRange.value=shVal}
+    const shOn=sm(.0,.6,eW);
+    shadeColor(shVal,tmpC).lerp(SH[4][1],1-shOn);crownMat.color.copy(tmpC);rootMat.color.copy(tmpC);
+    const si=Math.round(shVal);if(si!==lastSh){lastSh=si;$('#shName').textContent=SH[si][0];$('#shNote').textContent=SH[si][2];chips.forEach((c,i)=>c.classList.toggle('on',i===si))}
+  }
+  implant.position.y=SPLIT-(1-D.imp)*.9;implant.rotation.y=(1-D.imp)*Math.PI*6;
+  ti.opacity=clamp(D.imp*1.4);implant.visible=D.imp>.01;
+  abut.position.y=SPLIT+(1-D.ab)*.45;abut.rotation.y=(1-D.ab)*2;gold.opacity=clamp(D.ab*1.4);abut.visible=D.ab>.01;
+  ti.transparent=ti.opacity<.99;gold.transparent=gold.opacity<.99;
+  bubMat.uniforms.uT.value=t;bubMat.uniforms.uS.value=scrollY/vh*.15;
+  spot.position.set(mx*3,-my*2+.5,3);
+  camera.position.x=mx*.12;camera.position.y=-my*.08;camera.lookAt(0,0,0);
+  // интерфейс
+  const st=pI<.3?0:pI<.55?1:pI<.78?2:3;steps.forEach((li,i)=>li.classList.toggle('on',i===st));ibar.style.width=(pI*100)+'%';
+  const sp=Math.round(sm(.05,.9,pS)*100);sbar.style.setProperty('--sp',sp+'%');spct.textContent=sp+'%';
+  hdr.classList.toggle('solid',scrollY>40);
+  const tv=[sm(.86,.95,pI),sm(.68,.78,pI),sm(.5,.62,pI)].map(v=>v*(1-sm(.05,.3,eS)));
+  scene.updateMatrixWorld();
+  tags.forEach(([el,a],i)=>{const o=tv[i];el.style.opacity=o;if(o<.01)return;a.getWorldPosition(v3).project(camera);
+    const px=(v3.x*.5+.5)*innerWidth,py=(-v3.y*.5+.5)*innerHeight;const left=!m&&i!==2?false:true;
+    el.classList.toggle('l',!left);
+    const w=el.offsetWidth;el.style.transform=left?`translate(${px-w}px,${py-14}px)`:`translate(${px}px,${py-14}px)`});
+  // фон по разделам
+  const bi=pH<1&&eI<1?0:(eS<1?1:(eW<1?2:(eD<1?3:4)));
+  const wgt=[1,eI,eS,eW,eD];let a=BGS[0];
+  cA.set(BGS[0][0]);cB.set(BGS[0][1]);
+  for(let i=1;i<5;i++){const w2=sm(0,1,wgt[i]);cA.lerp(tmpC.set(BGS[i][0]),w2);cB.lerp(tmpC.set(BGS[i][1]),w2)}
+  const r=document.documentElement.style;r.setProperty('--c1','#'+cA.getHexString());r.setProperty('--c2','#'+cB.getHexString());
+  if(startT===null)$('#pct').textContent=Math.round(loadP*100);
+  renderer.render(scene,camera);
+}
+let last=performance.now();
+function loop(now){const dt=Math.min(.05,(now-last)/1000);last=now;frame(dt);requestAnimationFrame(loop)}
+if(REC){document.head.insertAdjacentHTML('beforeend','<style>*{transition:none!important}</style>');window.__rec={frame,ready:()=>ready,setMouse:(x,y)=>{tmx=x;tmy=y;mx=x;my=y}}}else requestAnimationFrame(loop);
+</script>
+</body>
+</html>
