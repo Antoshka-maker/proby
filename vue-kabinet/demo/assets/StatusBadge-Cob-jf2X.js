@@ -1,0 +1,1 @@
+import{S as a}from"./types-B0y7pG4s.js";import{d as t,o as e,c as o,s as n,t as c,j as r,_ as p}from"./index-BbTt5Agj.js";const _=t({__name:"StatusBadge",props:{status:{}},setup(s){return(m,u)=>(e(),o("span",{class:n(["badge",s.status])},c(r(a)[s.status]),3))}}),i=p(_,[["__scopeId","data-v-c19007d9"]]);export{i as S};
