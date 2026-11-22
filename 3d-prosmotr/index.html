@@ -1,0 +1,51 @@
+<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>3D-просмотр модели</title>
+<style>
+html,body{margin:0;height:100%;font-family:Arial,sans-serif;background:#f4f5f7;color:#1d2530}
+#v{position:absolute;inset:0 0 86px 0}
+#bar{position:absolute;left:0;right:0;bottom:0;height:86px;background:#fff;border-top:1px solid #d9dde3;display:flex;align-items:center;gap:8px;padding:0 14px;box-sizing:border-box}
+button{font-size:14px;padding:8px 10px;white-space:nowrap;border:1px solid #c5cbd3;border-radius:8px;background:#fff;cursor:pointer}
+button.on{background:#1f6feb;color:#fff;border-color:#1f6feb}
+input[type=range]{flex:1;min-width:60px}
+#t{position:absolute;left:22px;top:16px;font-size:20px;font-weight:bold}
+#s{position:absolute;left:22px;top:44px;font-size:14px;color:#566}
+label{font-size:14px;color:#445}
+</style></head><body>
+<div id="v"></div><div id="t">Планка примыкания: сборка из листа</div><div id="s">Крутите мышью или пальцем, колесо приближает. Шаг гибки: <b id="st">0</b> из 3</div>
+<div id="bar"><button id="play" class="on">Пауза</button><button id="rst">В начало</button><button id="prev">Шаг назад</button><button id="next">Шаг вперёд</button>
+<input id="pr" type="range" min="0" max="1000" value="0"><label style="white-space:nowrap">Скорость <select id="sp"><option value="0.5">0.5x</option><option value="1" selected>1x</option><option value="2">2x</option></select></label><button id="rot">Автовращение</button></div>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
+<script type="module">
+import * as THREE from 'three';import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
+const el=document.getElementById('v');const r=new THREE.WebGLRenderer({antialias:true,preserveDrawingBuffer:true});r.setPixelRatio(Math.min(devicePixelRatio,2));r.shadowMap.enabled=true;r.shadowMap.type=THREE.PCFSoftShadowMap;el.appendChild(r.domElement);
+const sc=new THREE.Scene();sc.background=new THREE.Color(0xf4f5f7);
+const cam=new THREE.PerspectiveCamera(32,1,1,5000);cam.position.set(-420,260,520);
+const oc=new OrbitControls(cam,r.domElement);oc.target.set(0,35,0);oc.enableDamping=true;oc.autoRotateSpeed=1.5;
+sc.add(new THREE.HemisphereLight(0xffffff,0x8a93a0,1.5));const dl=new THREE.DirectionalLight(0xffffff,2.4);dl.position.set(-200,500,300);dl.castShadow=true;dl.shadow.mapSize.set(2048,2048);Object.assign(dl.shadow.camera,{left:-400,right:400,top:400,bottom:-400,near:10,far:1500});sc.add(dl);
+const gr=new THREE.Mesh(new THREE.PlaneGeometry(4000,4000),new THREE.ShadowMaterial({opacity:.18}));gr.rotation.x=-Math.PI/2;gr.position.y=-0.5;gr.receiveShadow=true;sc.add(gr);
+// профиль: полки (мм) и углы гиба (град) между ними
+const SEG=[15,70,55,30],ANG=[90,-70,70],LEN=500,TH=0.7;
+const geo=new THREE.BufferGeometry();const N=SEG.length+1;geo.setAttribute('position',new THREE.BufferAttribute(new Float32Array(N*2*3),3));
+const idx=[];for(let i=0;i<N-1;i++){const a=i*2,b=a+1,c=a+2,d=a+3;idx.push(a,c,b,b,c,d)}geo.setIndex(idx);
+const mesh=new THREE.Mesh(geo,new THREE.MeshStandardMaterial({color:0xcfd4db,metalness:.25,roughness:.5,side:THREE.DoubleSide,flatShading:true}));mesh.castShadow=true;mesh.receiveShadow=true;sc.add(mesh);
+const edge=new THREE.LineSegments(new THREE.BufferGeometry(),new THREE.LineBasicMaterial({color:0x5b6470}));sc.add(edge);
+function build(p){ // p 0..1: гибы идут по очереди
+  const k=ANG.length;let x=0,y=0,dir=0;const pts=[[0,0]];
+  for(let i=0;i<SEG.length;i++){x+=SEG[i]*Math.cos(dir);y+=SEG[i]*Math.sin(dir);pts.push([x,y]);if(i<k){const f=Math.min(1,Math.max(0,p*k-i));const e=f*f*(3-2*f);dir+=ANG[i]*e*Math.PI/180}}
+  const miny=Math.min(...pts.map(q=>q[1])),cx=(Math.min(...pts.map(q=>q[0]))+Math.max(...pts.map(q=>q[0])))/2;
+  const a=geo.attributes.position.array;pts.forEach((q,i)=>{a.set([q[0]-cx,q[1]-miny+TH,-LEN/2],i*6);a.set([q[0]-cx,q[1]-miny+TH,LEN/2],i*6+3)});
+  geo.attributes.position.needsUpdate=true;geo.computeVertexNormals();geo.computeBoundingSphere();
+  edge.geometry.dispose();edge.geometry=new THREE.EdgesGeometry(geo,1);
+  document.getElementById('st').textContent=Math.min(k,Math.floor(p*k+1e-6));
+}
+let p=0,playing=true,speed=1;const DUR=6;const $=id=>document.getElementById(id);
+function setP(v){p=Math.min(1,Math.max(0,v));$('pr').value=Math.round(p*1000);build(p)}
+function setPlay(v){playing=v;$('play').textContent=v?'Пауза':'Пуск';$('play').classList.toggle('on',v)}
+$('play').onclick=()=>{if(p>=1&&!playing)setP(0);setPlay(!playing)};$('rst').onclick=()=>{setP(0);setPlay(false)};
+$('next').onclick=()=>{setPlay(false);setP((Math.floor(p*3+1e-6)+1)/3)};$('prev').onclick=()=>{setPlay(false);setP((Math.ceil(p*3-1e-6)-1)/3)};
+$('pr').oninput=e=>{setPlay(false);setP(e.target.value/1000)};$('sp').onchange=e=>speed=+e.target.value;
+$('rot').onclick=()=>{oc.autoRotate=!oc.autoRotate;$('rot').classList.toggle('on',oc.autoRotate)};
+function size(){const w=el.clientWidth,h=el.clientHeight;r.setSize(w,h);cam.aspect=w/h;cam.updateProjectionMatrix()}addEventListener('resize',size);size();
+const q=new URLSearchParams(location.search);if(q.has('p')){setPlay(false);setP(+q.get('p'))}else setP(0);
+let last=performance.now();(function loop(now){const dt=(now-last)/1000;last=now;if(playing){setP(p+dt*speed/DUR);if(p>=1)setPlay(false)}oc.update();r.render(sc,cam);window.done=1;requestAnimationFrame(loop)})(last);
+</script></body></html>

@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Поймай завтрак. Кофейня «Зерно»</title>
+<link rel="stylesheet" href="common.css">
+<style>
+  body{overflow:hidden}
+  #c{position:fixed;inset:0;width:100%;height:100%;display:block;touch-action:none}
+  .hud{position:fixed;top:0;left:0;right:0;z-index:2}
+  .hud .top{max-width:none}
+  .stats{display:flex;gap:10px}
+  #start{position:fixed;inset:0;display:grid;place-items:center;z-index:3;background:rgba(246,239,230,.82)}
+  #start .box{text-align:center;max-width:520px;padding:20px}
+  #start p{color:var(--dim);font-size:18px;margin:8px 0 24px}
+  .legend{display:flex;gap:14px;justify-content:center;margin-bottom:26px;flex-wrap:wrap}
+  .legend span{display:flex;align-items:center;gap:8px;font-weight:600}
+  .legend img{width:46px;height:46px;border-radius:50%;object-fit:cover;border:3px solid #fff;box-shadow:0 3px 8px rgba(0,0,0,.15)}
+  .legend .x{width:46px;height:46px;border-radius:50%;background:#3a3a3a;display:grid;place-items:center;color:#fff;font-weight:800}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div class="hud"><div class="top"><div class="logo"><i>З</i>Кофейня «Зерно»</div><div class="stats"><div class="pill" id="sc">Очки: 0</div><div class="pill" id="tm">0:30</div><div class="pill" id="bs">Рекорд: 0</div></div></div></div>
+<div id="start"><div class="box"><h1>Поймай завтрак</h1><p>Двигайте поднос пальцем или мышью. Ловите десерты и кофе, уворачивайтесь от подгоревших зёрен. 30 секунд</p>
+<div class="legend"><span><img src="img/croissant.jpg">+10</span><span><img src="img/donut.jpg">+10</span><span><img src="img/latte.jpg">+20</span><span><i class="x">✕</i>−15</span></div>
+<button class="btn" id="go">Играть</button></div></div>
+<div class="modal" id="m"><div class="box"><h2 id="mt"></h2><p id="mp"></p><div class="code" id="mc"></div><br><button class="btn" onclick="m.classList.remove('on');begin()">Ещё раз</button></div></div>
+<script>
+const cv=document.getElementById('c'),x=cv.getContext('2d');let W,H,dpr;
+function fit(){dpr=Math.min(2,devicePixelRatio||1);W=innerWidth;H=innerHeight;cv.width=W*dpr;cv.height=H*dpr;x.setTransform(dpr,0,0,dpr,0,0)}addEventListener('resize',fit);fit();
+const kinds=[{n:'croissant',p:10,w:5},{n:'donut',p:10,w:4},{n:'macarons',p:10,w:3},{n:'latte',p:20,w:2},{n:'bad',p:-15,w:3}];
+const img={};kinds.forEach(k=>{if(k.n!=='bad'){img[k.n]=new Image();img[k.n].src='img/'+k.n+'.jpg'}});
+let tray={x:W/2,w:210},items=[],pops=[],score=0,left=30,run=false,last=0,spawnT=0,best=0;
+try{best=+localStorage.getItem('zerno-catch')||0}catch(e){}bs.textContent='Рекорд: '+best;
+function pickKind(){const s=kinds.reduce((a,k)=>a+k.w,0);let r=Math.random()*s;for(const k of kinds){r-=k.w;if(r<0)return k}return kinds[0]}
+function spawn(){const k=pickKind(),r=42+Math.random()*10;items.push({k,r,x:r+Math.random()*(W-2*r),y:-r,v:170+Math.random()*120+(30-left)*9,a:Math.random()*6})}
+function move(e){const p=e.touches?e.touches[0]:e;tray.x=p.clientX}
+addEventListener('mousemove',move);addEventListener('touchmove',e=>{move(e);e.preventDefault()},{passive:false});addEventListener('touchstart',move);
+function drawTray(){const y=H-70,w=tray.w;x.save();x.translate(tray.x,y);
+ x.fillStyle='rgba(0,0,0,.12)';x.beginPath();x.ellipse(0,38,w*.55,10,0,0,7);x.fill();
+ x.fillStyle='#8a5634';x.beginPath();x.moveTo(-w/2,0);x.lineTo(w/2,0);x.lineTo(w/2-16,26);x.lineTo(-w/2+16,26);x.closePath();x.fill();
+ x.fillStyle='#b5774b';x.fillRect(-w/2-6,-8,w+12,10);x.restore()}
+function drawItem(o){x.save();x.translate(o.x,o.y);x.rotate(o.a);
+ if(o.k.n==='bad'){x.fillStyle='#2e2a27';x.beginPath();x.ellipse(0,0,o.r*.8,o.r,0,0,7);x.fill();x.strokeStyle='#5a524c';x.lineWidth=4;x.beginPath();x.moveTo(0,-o.r*.8);x.quadraticCurveTo(o.r*.35,0,0,o.r*.8);x.stroke()}
+ else{x.beginPath();x.arc(0,0,o.r,0,7);x.closePath();x.save();x.clip();const im=img[o.k.n];if(im.complete)x.drawImage(im,-o.r,-o.r,o.r*2,o.r*2);x.restore();x.lineWidth=4;x.strokeStyle='#fff';x.stroke()}
+ x.restore()}
+function bg(){const g=x.createLinearGradient(0,0,0,H);g.addColorStop(0,'#f6efe6');g.addColorStop(1,'#ecdcc6');x.fillStyle=g;x.fillRect(0,0,W,H);
+ x.fillStyle='rgba(181,83,42,.06)';for(let i=0;i<7;i++){x.beginPath();x.arc((i*173)%W,(i*97)%H+60,40+i%4*18,0,7);x.fill()}}
+function frame(t){const dt=Math.min(.05,(t-last)/1000||0);last=t;bg();
+ if(run){spawnT-=dt;if(spawnT<=0){spawn();spawnT=.45-Math.min(.25,(30-left)*.008)}
+  left-=dt;if(left<=0){left=0;stop()}tm.textContent='0:'+String(Math.ceil(left)).padStart(2,'0')}
+ tray.x=Math.max(tray.w/2,Math.min(W-tray.w/2,tray.x));
+ for(const o of items){o.y+=o.v*dt;o.a+=dt*1.5;
+  if(!o.gone&&o.y+o.r>H-78&&o.y<H-40&&Math.abs(o.x-tray.x)<tray.w/2+o.r*.4){o.gone=1;score=Math.max(0,score+o.k.p);sc.textContent='Очки: '+score;pops.push({x:o.x,y:H-100,t:1,s:(o.k.p>0?'+':'')+o.k.p,c:o.k.p>0?'#4f8a5b':'#c4473a'})}}
+ items=items.filter(o=>!o.gone&&o.y<H+60);items.forEach(drawItem);drawTray();
+ for(const p of pops){p.t-=dt*1.4;p.y-=dt*60;x.globalAlpha=Math.max(0,p.t);x.fillStyle=p.c;x.font='800 30px Inter,Arial';x.textAlign='center';x.fillText(p.s,p.x,p.y)}x.globalAlpha=1;pops=pops.filter(p=>p.t>0);
+ requestAnimationFrame(frame)}
+function begin(){score=0;left=30;items=[];pops=[];sc.textContent='Очки: 0';run=true;document.getElementById('start').style.display='none'}
+function stop(){run=false;if(score>best){best=score;try{localStorage.setItem('zerno-catch',best)}catch(e){}bs.textContent='Рекорд: '+best}
+ const win=score>=200;mt.textContent='Ваш счёт: '+score;mp.textContent=win?'Больше 200 очков, круассан к кофе в подарок!':'Наберите 200 очков, и круассан к кофе будет в подарок';
+ mc.textContent=win?'KRUA-'+(100+Math.floor(Math.random()*900)):'';mc.style.display=win?'':'none';m.classList.add('on')}
+go.onclick=begin;requestAnimationFrame(frame);
+</script>
+</body>
+</html>

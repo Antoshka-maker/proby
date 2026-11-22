@@ -1,0 +1,354 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Портфолио: сайты, автоматизация, 3D</title>
+<meta name="description" content="Сайты и интерфейсы, обработка данных, боты, игры, графика и 3D-модели. Живые демо и исходный код.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f6f5f2;--card:#fff;--ink:#17181a;--mute:#5d6168;--line:#e4e2dc;--acc:#2f5bea;--acc-ink:#fff;--chip:#ecebe6;--shadow:0 1px 2px rgba(0,0,0,.04),0 6px 24px rgba(0,0,0,.06)}
+@media (prefers-color-scheme:dark){:root{--bg:#121315;--card:#1b1d20;--ink:#eceae6;--mute:#a1a5ad;--line:#2c2f34;--acc:#7c9bff;--acc-ink:#0d1220;--chip:#23262b;--shadow:0 1px 2px rgba(0,0,0,.3),0 6px 24px rgba(0,0,0,.3)}}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 Manrope,system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
+a{color:inherit}
+.wrap{max-width:1240px;margin:0 auto;padding:0 24px}
+header{padding:64px 0 28px}
+.eyebrow{font-size:13px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--acc)}
+h1{font-size:clamp(32px,5vw,56px);line-height:1.05;letter-spacing:-.02em;margin:10px 0 16px;font-weight:800;max-width:900px}
+.lead{font-size:18px;color:var(--mute);max-width:760px;margin:0}
+.facts{display:flex;flex-wrap:wrap;gap:28px;margin:28px 0 0;padding:0;list-style:none}
+.facts b{display:block;font-size:28px;font-weight:800;letter-spacing:-.01em}
+.facts span{color:var(--mute);font-size:14px}
+nav.filters{position:sticky;top:0;z-index:5;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.chips{display:flex;gap:8px;overflow-x:auto;padding:14px 0;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:none;border:0;background:var(--chip);color:var(--ink);font:600 14px/1 Manrope,system-ui,sans-serif;padding:10px 14px;border-radius:999px;cursor:pointer}
+.chip span{color:var(--mute);font-weight:500;margin-left:2px}
+.chip.on{background:var(--ink);color:var(--bg)}
+.chip.on span{color:inherit;opacity:.7}
+main{padding:8px 0 64px}
+.cat{padding-top:36px}
+.cat h2{font-size:24px;letter-spacing:-.01em;margin:0 0 18px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:22px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;overflow:hidden;display:flex;flex-direction:column;box-shadow:var(--shadow);transition:transform .2s,box-shadow .2s}
+.card:hover{transform:translateY(-2px)}
+.shot{position:relative;display:block;aspect-ratio:16/10;background:var(--chip);overflow:hidden;border-bottom:1px solid var(--line)}
+.shot img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .4s}
+.card:hover .shot img{transform:scale(1.03)}
+.badge{position:absolute;left:12px;top:12px;background:var(--card);color:var(--ink);font-size:12px;font-weight:700;padding:5px 10px;border-radius:999px;box-shadow:var(--shadow)}
+.body{padding:18px 20px 20px;display:flex;flex-direction:column;flex:1}
+.body h3{font-size:18px;line-height:1.3;margin:0 0 8px;letter-spacing:-.005em}
+.body p{margin:0 0 14px;color:var(--mute);font-size:15px}
+.stack{list-style:none;padding:0;margin:0 0 16px;display:flex;flex-wrap:wrap;gap:6px}
+.stack li{font-size:12px;font-weight:600;padding:4px 9px;border-radius:6px;background:var(--chip);color:var(--mute)}
+.links{margin-top:auto;display:flex;flex-wrap:wrap;gap:8px}
+.btn{font-size:14px;font-weight:700;text-decoration:none;padding:9px 14px;border-radius:10px;border:1px solid var(--line)}
+.btn:hover{border-color:var(--ink)}
+.btn-main{background:var(--acc);border-color:var(--acc);color:var(--acc-ink)}
+.btn-main:hover{border-color:var(--acc);filter:brightness(1.08)}
+footer{border-top:1px solid var(--line);padding:28px 0 48px;color:var(--mute);font-size:14px}
+.hide{display:none!important}
+@media (max-width:640px){.wrap{padding:0 16px}header{padding:40px 0 20px}.lead{font-size:16px}.grid{grid-template-columns:1fr;gap:16px}.facts{gap:20px}.facts b{font-size:24px}}
+</style>
+</head>
+<body>
+<header class="wrap">
+  <div class="eyebrow">Портфолио</div>
+  <h1>Сайты, автоматизация, боты, игры и 3D</h1>
+  <p class="lead">Работы по заказам, пробы под задачи заказчиков и собственные проекты. У сайтов и игр есть живые демо, у скриптов и ботов открыт исходный код.</p>
+  <ul class="facts">
+    <li><b>30</b><span>работ на витрине</span></li>
+    <li><b>Python, JS, Vue, PHP</b><span>основной стек</span></li>
+    <li><b>three.js, CadQuery, Blender</b><span>3D в браузере и под печать</span></li>
+  </ul>
+</header>
+<nav class="filters"><div class="wrap chips" role="toolbar" aria-label="Разделы"><button class="chip on" data-f="all">Все <span>30</span></button><button class="chip" data-f="sites">Сайты и интерфейсы <span>8</span></button><button class="chip" data-f="data">Данные и автоматизация <span>6</span></button><button class="chip" data-f="bots">Боты <span>3</span></button><button class="chip" data-f="games">Игры <span>2</span></button><button class="chip" data-f="design">Графика и печать <span>4</span></button><button class="chip" data-f="3d">3D <span>5</span></button><button class="chip" data-f="texts">Тексты и видео <span>2</span></button></div></nav>
+<main class="wrap">
+<section class="cat" data-cat="sites"><h2>Сайты и интерфейсы</h2><div class="grid"><article class="card" data-cat="sites">
+  <a class="shot" href="stomatologiya/"><img src="assets/prevyu/stomatologiya.jpg" alt="Главная страница стоматологии с 3D-зубом" loading="lazy" width="960" height="600"></a>
+  <div class="body">
+    <h3>Главная страница стоматологии с 3D-зубом</h3>
+    <p>Живая 3D-модель зуба на первом экране и сцены при прокрутке: имплант, подбор оттенка, врачи, отзывы, запись. Адаптив под телефон.</p>
+    <ul class="stack"><li>three.js</li><li>GLB</li><li>HTML/CSS</li></ul>
+    <div class="links"><a class="btn btn-main" href="stomatologiya/">Открыть сайт</a></div>
+  </div>
+</article>
+<article class="card" data-cat="sites">
+  <a class="shot" href="vue-kabinet/demo/"><img src="assets/prevyu/vue-kabinet.jpg" alt="Кабинет заказов на Vue 3" loading="lazy" width="960" height="600"><span class="badge">вход demo / demo</span></a>
+  <div class="body">
+    <h3>Кабинет заказов на Vue 3</h3>
+    <p>Вход, сводка, таблица заказов с поиском, фильтром, сортировкой и страницами, карточка заказа с редактированием. Бэкенд эмулируется в браузере, покрыто тестами.</p>
+    <ul class="stack"><li>Vue 3</li><li>TypeScript</li><li>Pinia</li><li>Vitest</li></ul>
+    <div class="links"><a class="btn btn-main" href="vue-kabinet/demo/">Открыть демо</a><a class="btn" href="https://github.com/Antoshka-maker/proby/tree/main/vue-kabinet" target="_blank" rel="noopener">Код</a></div>
+  </div>
+</article>
+<article class="card" data-cat="sites">
+  <a class="shot" href="otel-les/"><img src="assets/prevyu/otel-les.jpg" alt="Лендинг загородного отеля «Хвоя»" loading="lazy" width="960" height="600"></a>
+  <div class="body">
+    <h3>Лендинг загородного отеля «Хвоя»</h3>
+    <p>Летняя и новогодняя версии одним переключателем. Фото на первом экране объёмно двигается за мышью по карте глубины. Форма подбора дат и гостей.</p>
+    <ul class="stack"><li>three.js</li><li>шейдеры</li><li>HTML/CSS</li></ul>
+    <div class="links"><a class="btn btn-main" href="otel-les/">Открыть сайт</a><a class="btn" href="otel-les/otel-proba.mp4">Видео</a></div>
+  </div>
+</article>
+<article class="card" data-cat="sites">
+  <a class="shot" href="novelly/"><img src="assets/prevyu/novelly.jpg" alt="Сайт для коротких новелл" loading="lazy" width="960" height="600"></a>
+  <div class="body">
+    <h3>Сайт для коротких новелл</h3>
+    <p>Удобное чтение с телефона, оглавление, опрос после прочтения. Движок на PHP без базы данных: админка, загрузка .docx, цели дочитывания в Метрике, превью для Telegram, анонимные отзывы.</p>
+    <ul class="stack"><li>PHP 8</li><li>JS</li><li>Яндекс Метрика</li></ul>
+    <div class="links"><a class="btn btn-main" href="novelly/">Открыть прототип</a><a class="btn" href="https://github.com/Antoshka-maker/proby/tree/main/novelly/dvizhok" target="_blank" rel="noopener">Код движка</a></div>
+  </div>
+</article>
+<article class="card" data-cat="sites">
+  <a class="shot" href="master-na-chas/"><img src="assets/prevyu/master-na-chas.jpg" alt="Сайт мастера на час для Германии" loading="lazy" width="960" height="600"></a>
+  <div class="body">
+    <h3>Сайт мастера на час для Германии</h3>
+    <p>Одностраничник на немецком и русском: услуги с ценами, заявка по телефону или в мессенджер, Impressum и Datenschutz.</p>
+    <ul class="stack"><li>HTML/CSS</li><li>JS</li></ul>
+    <div class="links"><a class="btn btn-main" href="master-na-chas/">Открыть сайт</a></div>
+  </div>
+</article>
+<article class="card" data-cat="sites">
+  <a class="shot" href="blochnyy-led/"><img src="assets/prevyu/blochnyy-led.jpg" alt="Лендинг производителя блочного льда" loading="lazy" width="960" height="600"></a>
+  <div class="body">
+    <h3>Лендинг производителя блочного льда</h3>
+    <p>Калькулятор заказа прямо на первом экране: вид льда, количество, доставка, итоговая цена и заявка.</p>
+    <ul class="stack"><li>HTML/CSS</li><li>JS</li></ul>
+    <div class="links"><a class="btn btn-main" href="blochnyy-led/">Открыть сайт</a></div>
+  </div>
+</article>
+<article class="card" data-cat="sites">
+  <a class="shot" href="elektrika/"><img src="assets/prevyu/elektrika.jpg" alt="Сборщик заказа электрики" loading="lazy" width="960" height="600"></a>
+  <div class="body">
+    <h3>Сборщик заказа электрики</h3>
+    <p>Менеджер вводит количество, программа сама подбирает артикулы по упаковкам с наименьшей ценой. Номенклатура лежит отдельным файлом и правится без кода.</p>
+    <ul class="stack"><li>JS</li><li>HTML/CSS</li></ul>
+    <div class="links"><a class="btn btn-main" href="elektrika/">Открыть</a></div>
+  </div>
+</article>
+<article class="card" data-cat="sites">
+  <a class="shot" href="3d-prosmotr/"><img src="assets/prevyu/3d-prosmotr.jpg" alt="Пошаговая 3D-сборка детали" loading="lazy" width="960" height="600"></a>
+  <div class="body">
+    <h3>Пошаговая 3D-сборка детали</h3>
+    <p>Гибка планки примыкания из листа по шагам: пуск, пауза, шаг вперёд и назад, вращение мышью или пальцем.</p>
+    <ul class="stack"><li>three.js</li></ul>
+    <div class="links"><a class="btn btn-main" href="3d-prosmotr/">Открыть</a></div>
+  </div>
+</article></div></section>
+<section class="cat" data-cat="data"><h2>Данные и автоматизация</h2><div class="grid"><article class="card" data-cat="data">
+  <a class="shot" href="dashbord/"><img src="assets/prevyu/dashbord.jpg" alt="Дашборд молочного производства" loading="lazy" width="960" height="600"></a>
+  <div class="body">
+    <h3>Дашборд молочного производства</h3>
+    <p>Загружаете Excel прямо в браузере и сразу видите надои, выручку, цену литра, жирность и поголовье по дням. Без сервера и установки.</p>
+    <ul class="stack"><li>JS</li><li>Chart.js</li><li>Excel</li></ul>
+    <div class="links"><a class="btn btn-main" href="dashbord/">Открыть дашборд</a><a class="btn" href="dashbord/primer-dannyh.xlsx">Пример данных</a></div>
+  </div>
+</article>
+<article class="card" data-cat="data">
+  <a class="shot" href="sverka/reestr-proba.xlsx"><img src="assets/prevyu/sverka.jpg" alt="Сверка эквайринга, СБП и чеков ОФД" loading="lazy" width="960" height="600"></a>
+  <div class="body">
+    <h3>Сверка эквайринга, СБП и чеков ОФД</h3>
+    <p>Скрипт сопоставляет оплаты банка с чеками кассы по сумме и времени, находит пропущенные чеки и возвраты и выгружает реестр расхождений в Excel.</p>
+    <ul class="stack"><li>Python</li><li>pandas</li><li>openpyxl</li></ul>
+    <div class="links"><a class="btn btn-main" href="sverka/reestr-proba.xlsx">Реестр</a><a class="btn" href="https://github.com/Antoshka-maker/proby/tree/main/sverka" target="_blank" rel="noopener">Код</a></div>
+  </div>
+</article>
+<article class="card" data-cat="data">
+  <a class="shot" href="excel-otchet/otchet-kofeyni.xlsx"><img src="assets/prevyu/excel-otchet.jpg" alt="Отчёт из сырой выгрузки" loading="lazy" width="960" height="600"></a>
+  <div class="body">
+    <h3>Отчёт из сырой выгрузки</h3>
+    <p>29 тысяч чеков за три месяца превращаются в отчёт по точкам и месяцам: рост, топ товаров, график по дням. Всё на формулах, отчёт пересчитывается сам.</p>
+    <ul class="stack"><li>Python</li><li>openpyxl</li><li>Excel</li></ul>
+    <div class="links"><a class="btn btn-main" href="excel-otchet/otchet-kofeyni.xlsx">Отчёт</a><a class="btn" href="https://github.com/Antoshka-maker/proby/tree/main/excel-otchet" target="_blank" rel="noopener">Код</a></div>
+  </div>
+</article>
+<article class="card" data-cat="data">
+  <a class="shot" href="parser/katalog-knig.xlsx"><img src="assets/prevyu/parser.jpg" alt="Парсер каталога в Excel" loading="lazy" width="960" height="600"></a>
+  <div class="body">
+    <h3>Парсер каталога в Excel</h3>
+    <p>Собирает 1 000 товаров с учебного магазина за 33 секунды: название, категория, цена, рейтинг, наличие. Сводка по категориям на формулах.</p>
+    <ul class="stack"><li>Python</li><li>requests</li><li>BeautifulSoup</li></ul>
+    <div class="links"><a class="btn btn-main" href="parser/katalog-knig.xlsx">Результат</a><a class="btn" href="https://github.com/Antoshka-maker/proby/tree/main/parser" target="_blank" rel="noopener">Код</a></div>
+  </div>
+</article>
+<article class="card" data-cat="data">
+  <a class="shot" href="struktura/struktura-primer.xlsx"><img src="assets/prevyu/struktura.jpg" alt="Структура интернет-магазина по семантике" loading="lazy" width="960" height="600"></a>
+  <div class="body">
+    <h3>Структура интернет-магазина по семантике</h3>
+    <p>Каркас категорий магазина стройматериалов: уровни, URL, H1, тип страницы и запросы кластера.</p>
+    <ul class="stack"><li>Excel</li><li>SEO</li></ul>
+    <div class="links"><a class="btn btn-main" href="struktura/struktura-primer.xlsx">Таблица</a></div>
+  </div>
+</article>
+<article class="card" data-cat="data">
+  <a class="shot" href="https://github.com/Antoshka-maker/proby/tree/main/kicad" target="_blank" rel="noopener"><img src="assets/prevyu/kicad.jpg" alt="CSV → KiCad → Gerber" loading="lazy" width="960" height="600"></a>
+  <div class="body">
+    <h3>CSV → KiCad → Gerber</h3>
+    <p>Скрипт строит дорожки и отверстия печатной платы по таблице координат и выгружает Gerber и сверловку. Проверено в KiCad 7.</p>
+    <ul class="stack"><li>Python</li><li>KiCad pcbnew</li></ul>
+    <div class="links"><a class="btn btn-main" href="https://github.com/Antoshka-maker/proby/tree/main/kicad" target="_blank" rel="noopener">Код и файлы</a></div>
+  </div>
+</article></div></section>
+<section class="cat" data-cat="bots"><h2>Боты</h2><div class="grid"><article class="card" data-cat="bots">
+  <a class="shot" href="https://github.com/Antoshka-maker/proby/tree/main/bot-zayavki" target="_blank" rel="noopener"><img src="assets/prevyu/bot-zayavki.jpg" alt="Telegram-бот для приёма заявок" loading="lazy" width="960" height="600"></a>
+  <div class="body">
+    <h3>Telegram-бот для приёма заявок</h3>
+    <p>Меню, частые вопросы, заявка в три шага с проверкой телефона, уведомление администратору, база заявок.</p>
+    <ul class="stack"><li>Python</li><li>aiogram 3</li><li>SQLite</li></ul>
+    <div class="links"><a class="btn btn-main" href="https://github.com/Antoshka-maker/proby/tree/main/bot-zayavki" target="_blank" rel="noopener">Код</a></div>
+  </div>
+</article>
+<article class="card" data-cat="bots">
+  <a class="shot" href="bot-magazin/"><img src="assets/prevyu/bot-magazin.jpg" alt="Магазин в Telegram" loading="lazy" width="960" height="600"></a>
+  <div class="body">
+    <h3>Магазин в Telegram</h3>
+    <p>Сценарий бота для продаж: каталог с фото, корзина, расчёт доставки, оплата и трек-номер без участия продавца.</p>
+    <ul class="stack"><li>Telegram</li><li>JS</li></ul>
+    <div class="links"><a class="btn btn-main" href="bot-magazin/">Демо</a><a class="btn" href="bot-magazin/bot-demo.mp4">Видео</a></div>
+  </div>
+</article>
+<article class="card" data-cat="bots">
+  <a class="shot" href="https://github.com/Antoshka-maker/proby/tree/main/kaznachey" target="_blank" rel="noopener"><img src="assets/prevyu/kaznachey.jpg" alt="Бот-казначей родительского чата" loading="lazy" width="960" height="600"></a>
+  <div class="body">
+    <h3>Бот-казначей родительского чата</h3>
+    <p>Ведёт сборы класса: кто сдал, сколько осталось, напоминания и отчёт о расходах с чеками.</p>
+    <ul class="stack"><li>Python</li><li>SQLite</li><li>MAX Bot API</li></ul>
+    <div class="links"><a class="btn btn-main" href="https://github.com/Antoshka-maker/proby/tree/main/kaznachey" target="_blank" rel="noopener">Код</a><a class="btn" href="kaznachey/kak-rabotaet.png">Схема</a></div>
+  </div>
+</article></div></section>
+<section class="cat" data-cat="games"><h2>Игры</h2><div class="grid"><article class="card" data-cat="games">
+  <a class="shot" href="igry/koleso.html"><img src="assets/prevyu/igry.jpg" alt="Три мини-игры для кофейни" loading="lazy" width="960" height="600"></a>
+  <div class="body">
+    <h3>Три мини-игры для кофейни</h3>
+    <p>Колесо подарков, ловилка десертов и «найди пары». Работают на телефоне, рекорд сохраняется, без библиотек.</p>
+    <ul class="stack"><li>JS</li><li>HTML/CSS</li></ul>
+    <div class="links"><a class="btn btn-main" href="igry/koleso.html">Колесо</a><a class="btn" href="igry/lovilka.html">Ловилка</a><a class="btn" href="igry/pary.html">Пары</a></div>
+  </div>
+</article>
+<article class="card" data-cat="games">
+  <a class="shot" href="hadata/"><img src="assets/prevyu/hadata.jpg" alt="«Хадата»: атмосферный текстовый квест" loading="lazy" width="960" height="600"></a>
+  <div class="body">
+    <h3>«Хадата»: атмосферный текстовый квест</h3>
+    <p>Ночь на метеостанции: текст, звук и смена сцен, выбор влияет на концовку.</p>
+    <ul class="stack"><li>JS</li><li>Web Audio</li></ul>
+    <div class="links"><a class="btn btn-main" href="hadata/">Играть</a><a class="btn" href="hadata/hadata-demo.mp4">Видео</a></div>
+  </div>
+</article></div></section>
+<section class="cat" data-cat="design"><h2>Графика и печать</h2><div class="grid"><article class="card" data-cat="design">
+  <a class="shot" href="banner-kliniki/banner_240x400.gif"><img src="assets/prevyu/banner-kliniki.jpg" alt="Гиф-баннер 240×400 для клиники" loading="lazy" width="960" height="600"><span class="badge">выполненный заказ</span></a>
+  <div class="body">
+    <h3>Гиф-баннер 240×400 для клиники</h3>
+    <p>Анимированный баннер для Яндекс Директа по брендбуку клиники, 39 КБ при лимите 120. Прошёл модерацию с первого раза.</p>
+    <ul class="stack"><li>GIF</li><li>SVG</li><li>PSD</li></ul>
+    <div class="links"><a class="btn btn-main" href="banner-kliniki/banner_240x400.gif">Баннер</a><a class="btn" href="banner-kliniki/banner-anim-1920.gif">Анимация</a></div>
+  </div>
+</article>
+<article class="card" data-cat="design">
+  <a class="shot" href="bannery/banner-1920.jpg"><img src="assets/prevyu/bannery.jpg" alt="Акционный баннер для слайдера" loading="lazy" width="960" height="600"></a>
+  <div class="body">
+    <h3>Акционный баннер для слайдера</h3>
+    <p>Яркий баннер 1920×600 для главной интернет-магазина: товары, скидка, кнопка.</p>
+    <ul class="stack"><li>вёрстка</li><li>фото</li></ul>
+    <div class="links"><a class="btn btn-main" href="bannery/banner-1920.jpg">Смотреть</a></div>
+  </div>
+</article>
+<article class="card" data-cat="design">
+  <a class="shot" href="gazeta/maket-25x11-proba.pdf"><img src="assets/prevyu/gazeta.jpg" alt="Рекламный макет в газету" loading="lazy" width="960" height="600"></a>
+  <div class="body">
+    <h3>Рекламный макет в газету</h3>
+    <p>Модуль 25×11 см в PDF для типографии: CMYK, фото 300 dpi, сумма красок под газетную бумагу, отдельная ч/б версия.</p>
+    <ul class="stack"><li>PDF</li><li>CMYK</li></ul>
+    <div class="links"><a class="btn btn-main" href="gazeta/maket-25x11-proba.pdf">Цвет, PDF</a><a class="btn" href="gazeta/maket-25x11-proba-chb.pdf">Ч/б, PDF</a></div>
+  </div>
+</article>
+<article class="card" data-cat="design">
+  <a class="shot" href="vektor/vse-5.jpg"><img src="assets/prevyu/vektor.jpg" alt="Векторизация под гравировку и резку" loading="lazy" width="960" height="600"></a>
+  <div class="body">
+    <h3>Векторизация под гравировку и резку</h3>
+    <p>Трафарет с мостиками, логотип под гравировку, подставка по эскизу, кронштейн с размерами, наклейка для плоттера.</p>
+    <ul class="stack"><li>SVG</li><li>DXF</li></ul>
+    <div class="links"><a class="btn btn-main" href="vektor/vse-5.jpg">Все пять</a></div>
+  </div>
+</article></div></section>
+<section class="cat" data-cat="3d"><h2>3D</h2><div class="grid"><article class="card" data-cat="3d">
+  <a class="shot" href="3d-detali/psheet.jpg"><img src="assets/prevyu/3d-detali.jpg" alt="Детали для 3D-печати" loading="lazy" width="960" height="600"></a>
+  <div class="body">
+    <h3>Детали для 3D-печати</h3>
+    <p>Кронштейн, заглушка в профильную трубу, шестерня, корпус под плату ESP32, клипса на трубу. Параметрические модели с допусками под печать.</p>
+    <ul class="stack"><li>CadQuery</li><li>STEP</li><li>STL</li></ul>
+    <div class="links"><a class="btn btn-main" href="3d-detali/psheet.jpg">Рендеры</a><a class="btn" href="https://github.com/Antoshka-maker/proby/tree/main/3d-detali/model" target="_blank" rel="noopener">Модели</a></div>
+  </div>
+</article>
+<article class="card" data-cat="3d">
+  <a class="shot" href="toppery/prevyu-toppery.jpg"><img src="assets/prevyu/toppery.jpg" alt="Топперы на торт: лыжи и сноуборд" loading="lazy" width="960" height="600"></a>
+  <div class="body">
+    <h3>Топперы на торт: лыжи и сноуборд</h3>
+    <p>Модели под печать на 31×22 мм: снег, доска, крепления разными цветами, плоское дно.</p>
+    <ul class="stack"><li>Blender</li><li>STL</li></ul>
+    <div class="links"><a class="btn btn-main" href="toppery/prevyu-toppery.jpg">Превью</a></div>
+  </div>
+</article>
+<article class="card" data-cat="3d">
+  <a class="shot" href="gazogenerator/render.png"><img src="assets/prevyu/gazogenerator.jpg" alt="3D-модель генераторной установки по фото" loading="lazy" width="960" height="600"></a>
+  <div class="body">
+    <h3>3D-модель генераторной установки по фото</h3>
+    <p>Упрощённая сборка из девяти узлов: рама, шкаф, двигатель, фильтр, радиатор, АКБ. Формат STEP.</p>
+    <ul class="stack"><li>CadQuery</li><li>STEP</li></ul>
+    <div class="links"><a class="btn btn-main" href="gazogenerator/render.png">Рендер</a></div>
+  </div>
+</article>
+<article class="card" data-cat="3d">
+  <a class="shot" href="relef/topo.png"><img src="assets/prevyu/relef.jpg" alt="Рельеф и горизонтали по точкам съёмки" loading="lazy" width="960" height="600"></a>
+  <div class="body">
+    <h3>Рельеф и горизонтали по точкам съёмки</h3>
+    <p>Триангуляция точек, горизонтали в DXF для CAD и объёмный рендер участка.</p>
+    <ul class="stack"><li>Python</li><li>SciPy</li><li>ezdxf</li><li>Blender</li></ul>
+    <div class="links"><a class="btn btn-main" href="relef/topo.png">Рендер</a></div>
+  </div>
+</article>
+<article class="card" data-cat="3d">
+  <a class="shot" href="stend/stand_a.png"><img src="assets/prevyu/stend.jpg" alt="Концепт выставочного стенда" loading="lazy" width="960" height="600"><span class="badge">черновик</span></a>
+  <div class="body">
+    <h3>Концепт выставочного стенда</h3>
+    <p>Быстрый эскиз стенда с брендированием, стойкой и мебелью, два ракурса.</p>
+    <ul class="stack"><li>three.js</li></ul>
+    <div class="links"><a class="btn btn-main" href="stend/stand_a.png">Вид A</a><a class="btn" href="stend/stand_b.png">Вид B</a></div>
+  </div>
+</article></div></section>
+<section class="cat" data-cat="texts"><h2>Тексты и видео</h2><div class="grid"><article class="card" data-cat="texts">
+  <a class="shot" href="teksty/1-glavnaya-kabluk.png"><img src="assets/prevyu/teksty.jpg" alt="Тексты: сайт, объявление, статья" loading="lazy" width="960" height="600"></a>
+  <div class="body">
+    <h3>Тексты: сайт, объявление, статья</h3>
+    <p>Главная страница мастерской обуви, редактура объявления «было/стало», статья про домашний Wi-Fi.</p>
+    <ul class="stack"><li>копирайтинг</li><li>редактура</li></ul>
+    <div class="links"><a class="btn btn-main" href="teksty/1-glavnaya-kabluk.png">Главная</a><a class="btn" href="teksty/2-redaktura-obyavleniya.png">Объявление</a><a class="btn" href="teksty/3-statya-wifi.png">Статья</a></div>
+  </div>
+</article>
+<article class="card" data-cat="texts">
+  <a class="shot" href="subtitry/subtitry-demo-zvuk.mp4"><img src="assets/prevyu/subtitry.jpg" alt="Субтитры к видео на три языка" loading="lazy" width="960" height="600"></a>
+  <div class="body">
+    <h3>Субтитры к видео на три языка</h3>
+    <p>Расшифровка с таймкодами, перевод на английский и турецкий по смыслу, файлы .srt и вшитые субтитры.</p>
+    <ul class="stack"><li>SRT</li><li>видео</li></ul>
+    <div class="links"><a class="btn btn-main" href="subtitry/subtitry-demo-zvuk.mp4">Видео</a><a class="btn" href="subtitry/1-subtitry-3-yazyka.png">Пример</a></div>
+  </div>
+</article></div></section>
+
+</main>
+<footer class="wrap">Исходники всех работ: <a href="https://github.com/Antoshka-maker/proby" target="_blank" rel="noopener">github.com/Antoshka-maker/proby</a>. Данные в демо условные.</footer>
+<script>
+document.querySelectorAll('.chip').forEach(function(b){b.addEventListener('click',function(){
+  var f=b.dataset.f;document.querySelectorAll('.chip').forEach(function(x){x.classList.toggle('on',x===b)});
+  document.querySelectorAll('.cat').forEach(function(s){s.classList.toggle('hide',f!=='all'&&s.dataset.cat!==f)});
+  try{history.replaceState(null,'',f==='all'?location.pathname:'#'+f)}catch(e){}
+  window.scrollTo({top:document.querySelector('main').offsetTop-70,behavior:'smooth'});
+})});
+(function(){var h=location.hash.slice(1);var b=h&&document.querySelector('.chip[data-f="'+h+'"]');if(b)b.click();})();
+</script>
+</body>
+</html>

@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Найди пару. Кофейня «Зерно»</title>
+<link rel="stylesheet" href="common.css">
+<style>
+  .bar{display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap}
+  .grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;max-width:540px}
+  .card{aspect-ratio:1;perspective:900px;cursor:pointer}
+  .in{position:relative;width:100%;height:100%;transition:transform .45s;transform-style:preserve-3d}
+  .card.open .in,.card.done .in{transform:rotateY(180deg)}
+  .f,.b{position:absolute;inset:0;border-radius:16px;backface-visibility:hidden;overflow:hidden}
+  .f{background:var(--brand);display:grid;place-items:center;box-shadow:0 5px 0 #8a3c1c}
+  .f::after{content:"З";width:44%;aspect-ratio:1;border-radius:50%;border:3px solid rgba(255,255,255,.55);display:grid;place-items:center;color:#fff;font:800 clamp(18px,3vw,30px)/1 Inter,Arial}
+  .b{transform:rotateY(180deg);background:#fff;border:3px solid var(--line)}
+  .b img{width:100%;height:100%;object-fit:cover;display:block}
+  .card.done .b{border-color:#6b8f71;box-shadow:0 0 0 4px rgba(107,143,113,.35)}
+  .layout{display:grid;grid-template-columns:540px 1fr;gap:36px;align-items:start}
+  .note{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:24px;font-size:16px;color:var(--dim);line-height:1.5}
+  .note b{color:var(--ink)}
+  @media(max-width:900px){.layout{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="top"><div class="logo"><i>З</i>Кофейня «Зерно»</div><div class="pill" id="best">Рекорд: —</div></div>
+<div class="wrap">
+  <h1>Найдите все пары за минуту</h1>
+  <p class="sub">Успели — получаете скидку 10% на любой десерт</p>
+  <div class="layout">
+    <div>
+      <div class="bar"><div class="pill" id="tm">Время: 60</div><div class="pill" id="mv">Ходов: 0</div><div class="pill" id="pr">Пар: 0 из 8</div></div>
+      <div class="grid" id="g"></div>
+    </div>
+    <div class="note"><b>Как играть.</b> Открывайте по две карточки. Одинаковые остаются открытыми, разные закрываются. Лучший результат сохраняется на телефоне<br><br><button class="btn" id="re">Начать заново</button></div>
+  </div>
+</div>
+<div class="modal" id="m"><div class="box"><h2 id="mt"></h2><p id="mp"></p><div class="code" id="mc"></div><br><button class="btn" onclick="m.classList.remove('on');start()">Сыграть ещё</button></div></div>
+<script>
+const items=['latte','croissant','beans','cappuccino','donut','cheesecake','macarons','tea'];
+let first=null,lock=false,moves=0,pairs=0,left=60,timer=null,started=false;
+const g=document.getElementById('g');
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function ui(){tm.textContent='Время: '+left;mv.textContent='Ходов: '+moves;pr.textContent='Пар: '+pairs+' из 8'}
+function best(){let b=null;try{b=localStorage.getItem('zerno-pairs')}catch(e){}document.getElementById('best').textContent='Рекорд: '+(b?b+' ходов':'—')}
+function start(){clearInterval(timer);first=null;lock=false;moves=0;pairs=0;left=60;started=false;ui();
+ g.innerHTML=shuffle([...items,...items]).map(n=>`<div class="card" data-n="${n}"><div class="in"><div class="f"></div><div class="b"><img src="img/${n}.jpg" alt=""></div></div></div>`).join('')}
+function tick(){left--;ui();if(left<=0){clearInterval(timer);lock=true;end(false)}}
+g.onclick=e=>{const c=e.target.closest('.card');if(!c||lock||c.classList.contains('open')||c.classList.contains('done'))return;
+ if(!started){started=true;timer=setInterval(tick,1000)}
+ c.classList.add('open');if(!first){first=c;return}
+ moves++;ui();
+ if(first.dataset.n===c.dataset.n){first.classList.add('done');c.classList.add('done');first=null;pairs++;ui();if(pairs===8){clearInterval(timer);end(true)}}
+ else{lock=true;const a=first;first=null;setTimeout(()=>{a.classList.remove('open');c.classList.remove('open');lock=false},750)}};
+function end(win){if(win){try{const b=+localStorage.getItem('zerno-pairs')||999;if(moves<b)localStorage.setItem('zerno-pairs',moves)}catch(e){}best();
+ mt.textContent='Все пары найдены!';mp.textContent=`${moves} ходов, ${60-left} секунд. Ваш код на скидку:`;mc.textContent='PARA-'+(1000+Math.floor(Math.random()*9000));mc.style.display=''}
+ else{mt.textContent='Время вышло';mp.textContent=`Найдено пар: ${pairs} из 8. Попробуйте ещё раз`;mc.style.display='none'}
+ m.classList.add('on')}
+re.onclick=start;best();start();
+</script>
+</body>
+</html>
