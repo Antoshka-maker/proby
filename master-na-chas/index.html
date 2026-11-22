@@ -1,0 +1,56 @@
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Meister auf Abruf · Handwerker-Service</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f6f4ef;--ink:#16202b;--mut:#5d6873;--acc:#f2a900;--card:#fff;--line:#e3dfd6}
+*{box-sizing:border-box;margin:0}body{font-family:Manrope,system-ui,sans-serif;background:var(--bg);color:var(--ink);line-height:1.45}
+.wrap{max-width:1180px;margin:0 auto;padding:0 28px}
+header{display:flex;align-items:center;justify-content:space-between;padding:18px 0}
+.logo{font-weight:800;font-size:20px;letter-spacing:-.02em}.logo b{background:var(--acc);padding:2px 8px;border-radius:6px;margin-right:6px}
+nav{display:flex;gap:26px;align-items:center;font-size:15px;color:var(--mut)}nav a{color:inherit;text-decoration:none}
+.lang{display:flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:#fff}
+.lang button{border:0;background:none;padding:7px 14px;font:600 14px Manrope;cursor:pointer;color:var(--mut)}
+.lang button.on{background:var(--ink);color:#fff}
+.tel{font-weight:800;color:var(--ink)!important}
+.hero{display:grid;grid-template-columns:1.15fr .85fr;gap:44px;padding:26px 0 40px;align-items:start}
+.tag{display:inline-block;font-size:13px;font-weight:600;background:#fff;border:1px solid var(--line);padding:6px 12px;border-radius:999px;color:var(--mut)}
+h1{font-size:54px;line-height:1.04;letter-spacing:-.03em;font-weight:800;margin:16px 0 14px}h1 em{font-style:normal;background:linear-gradient(transparent 62%,var(--acc) 62%)}
+.lead{font-size:18px;color:var(--mut);max-width:560px}
+.cta{display:flex;gap:12px;margin:24px 0 22px;flex-wrap:wrap}
+.btn{padding:15px 22px;border-radius:12px;font:800 16px Manrope;text-decoration:none;border:0;cursor:pointer}
+.b1{background:var(--ink);color:#fff}.b2{background:#229ED9;color:#fff}.b4{background:#25D366;color:#fff}.b3{background:#fff;color:var(--ink);border:1px solid var(--line)}
+.facts{display:flex;gap:30px;font-size:14px;color:var(--mut)}.facts b{display:block;font-size:22px;color:var(--ink)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:22px 24px;box-shadow:0 12px 40px rgba(22,32,43,.07)}
+.card h2{font-size:18px;margin-bottom:8px}
+.row{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px dashed var(--line);font-size:15px}.row b{white-space:nowrap}
+.row:last-of-type{border:0}
+form{display:flex;gap:8px;margin-top:12px}input{flex:1;padding:13px 14px;border:1px solid var(--line);border-radius:10px;font:400 15px Manrope;min-width:0}
+.note{font-size:12px;color:var(--mut);margin-top:10px}
+footer{border-top:1px solid var(--line);padding:16px 0;font-size:13px;color:var(--mut);display:flex;gap:22px}
+@media(max-width:820px){.wrap{padding:0 16px}.btn{padding:13px 16px;font-size:15px}.tel{display:none}.logo{white-space:nowrap}.cta{display:grid;grid-template-columns:1fr 1fr}.btn{text-align:center}nav{gap:10px}.logo{font-size:17px}.facts{flex-wrap:wrap}.hero{grid-template-columns:1fr}h1{font-size:36px}nav a.h{display:none}.facts{gap:18px}form{flex-direction:column}}
+</style></head><body><div class="wrap">
+<header><div class="logo"><b>M</b><span data-de="Meister auf Abruf" data-ru="Мастер на час"></span></div>
+<nav><a class="h" href="#" data-de="Leistungen" data-ru="Услуги"></a><a class="h" href="#" data-de="Preise" data-ru="Цены"></a><a class="h" href="#" data-de="Kontakt" data-ru="Контакты"></a>
+<a class="tel" href="tel:+490000000000">+49 000 000 00 00</a>
+<div class="lang"><button id="de" class="on">DE</button><button id="ru">RU</button></div></nav></header>
+<section class="hero"><div>
+<span class="tag" data-de="Kleinreparaturen · Montage · Haushalt" data-ru="Мелкий ремонт · Сборка · Дом"></span>
+<h1 data-de="Ihr <em>Mann für alle Fälle</em> im Haushalt" data-ru="Мастер <em>на час</em> в вашем городе"></h1>
+<p class="lead" data-de="Lampe anschließen, Möbel aufbauen, Wasserhahn tauschen: Wir kommen pünktlich, arbeiten sauber und nennen den Preis vor dem Start. Wir sprechen Deutsch und Russisch." data-ru="Повесить люстру, собрать мебель, заменить смеситель: приезжаем вовремя, работаем аккуратно и называем цену до начала. Говорим по-русски и по-немецки"></p>
+<div class="cta"><a class="btn b1" href="#" data-de="Anfrage senden" data-ru="Оставить заявку"></a><a class="btn b2" href="#">Telegram</a><a class="btn b4" href="#">WhatsApp</a><a class="btn b3" href="#" data-de="Anrufen" data-ru="Позвонить"></a></div>
+<div class="facts"><div><b data-de="ab 35 €" data-ru="от 35 €"></b><span data-de="pro Stunde" data-ru="за час работы"></span></div><div><b data-de="heute" data-ru="сегодня"></b><span data-de="Termin oft am selben Tag" data-ru="часто приезжаем в день заявки"></span></div><div><b data-de="Rechnung" data-ru="Счёт"></b><span data-de="absetzbar nach §35a" data-ru="для налогового вычета"></span></div></div>
+</div>
+<div class="card"><h2 data-de="Beliebte Leistungen" data-ru="Частые услуги"></h2>
+<div class="row"><span data-de="Möbelmontage" data-ru="Сборка мебели"></span><b data-de="ab 40 €" data-ru="от 40 €"></b></div>
+<div class="row"><span data-de="Lampen und Steckdosen" data-ru="Светильники и розетки"></span><b data-de="ab 30 €" data-ru="от 30 €"></b></div>
+<div class="row"><span data-de="Armaturen, Silikonfugen" data-ru="Смесители, швы"></span><b data-de="ab 35 €" data-ru="от 35 €"></b></div>
+<div class="row"><span data-de="Bohren, Regale, Gardinen" data-ru="Сверление, полки, карнизы"></span><b data-de="ab 25 €" data-ru="от 25 €"></b></div>
+<form onsubmit="return false"><input data-ph-de="Telefon oder Telegram" data-ph-ru="Телефон или Telegram"><button class="btn b1" data-de="Rückruf" data-ru="Перезвоните"></button></form>
+<p class="note" data-de="Wir melden uns innerhalb von 15 Minuten. Preise sind Beispielwerte." data-ru="Ответим в течение 15 минут. Цены условные"></p></div></section>
+<footer><span data-de="© 2026 Meister auf Abruf" data-ru="© 2026 Мастер на час"></span><a data-de="Impressum" data-ru="Impressum"></a><a data-de="Datenschutz" data-ru="Datenschutz"></a></footer>
+</div><script>
+function L(l){document.documentElement.lang=l;document.querySelectorAll('[data-'+l+']').forEach(e=>e.innerHTML=e.dataset[l]);
+document.querySelectorAll('[data-ph-'+l+']').forEach(e=>e.placeholder=e.getAttribute('data-ph-'+l));
+de.className=l=='de'?'on':'';ru.className=l=='ru'?'on':''}
+de.onclick=()=>L('de');ru.onclick=()=>L('ru');L(location.hash=='#ru'?'ru':'de')
+</script></body></html>

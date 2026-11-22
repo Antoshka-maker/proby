@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Хадата. Ночной срок</title>
+<style>
+  :root{--ink:#e9eef2;--dim:#8fa1ad;--red:#ff3b30;--ice:#7fd6ff;--panel:rgba(8,14,20,.78)}
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%;background:#05090d;color:var(--ink);font-family:Inter,"Segoe UI",Roboto,Arial,sans-serif}
+  canvas{position:fixed;inset:0;width:100%;height:100%;display:block}
+  #vignette{position:fixed;inset:0;pointer-events:none;background:radial-gradient(ellipse at 50% 45%,transparent 35%,rgba(0,0,0,.9) 100%);opacity:.55;transition:opacity 1.2s}
+  #ui{position:fixed;inset:0;display:flex;flex-direction:column;justify-content:flex-end;padding:20px;gap:14px;max-width:820px;margin:0 auto}
+  #top{position:fixed;top:0;left:0;right:0;display:flex;justify-content:space-between;align-items:center;padding:16px 20px;font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim)}
+  #top b{color:var(--ink);font-weight:600}
+  #fear{display:flex;align-items:center;gap:10px}
+  #fear i{display:block;width:120px;height:6px;border-radius:3px;background:rgba(255,255,255,.12);overflow:hidden}
+  #fear i u{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--ice),var(--red));transition:width .8s}
+  #card{background:var(--panel);backdrop-filter:blur(6px);border:1px solid rgba(127,214,255,.18);border-radius:14px;padding:22px 24px}
+  #time{font:600 13px/1 Inter,sans-serif;letter-spacing:.2em;color:var(--red);margin-bottom:12px}
+  #text{font-size:19px;line-height:1.55;min-height:6.2em;white-space:pre-wrap}
+  #choices{display:grid;gap:10px}
+  @keyframes up{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+  button{animation:up .45s both;font:500 17px/1.3 inherit;color:var(--ink);text-align:left;padding:15px 18px;border-radius:12px;border:1px solid rgba(255,255,255,.16);background:rgba(16,26,36,.82);cursor:pointer;transition:.15s}
+  button:hover,button:focus-visible{border-color:var(--ice);background:rgba(28,48,64,.9);outline:none;transform:translateX(4px)}
+  button.danger:hover{border-color:var(--red)}
+  button small{display:block;color:var(--dim);font-size:13px;margin-top:4px}
+  #tools{display:flex;gap:16px;justify-content:flex-end;font-size:13px;color:var(--dim)}
+  #tools a{color:inherit;cursor:pointer;text-decoration:underline dotted}
+  @media (max-width:560px){#text{font-size:17px}#card{padding:18px}#fear i{width:80px}}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div id="vignette"></div>
+<div id="top"><span><b>Хадата</b> · метеостанция</span><span id="fear">страх <i><u id="fearbar"></u></i></span></div>
+<div id="ui">
+  <div id="card"><div id="time"></div><div id="text"></div></div>
+  <div id="choices"></div>
+  <div id="tools"><a id="snd">звук: выкл</a><a id="reset">начать заново</a></div>
+</div>
+<script>
+// ---------- Сцены. Каждая: время, текст, варианты. Вариант: t текст, to куда, fear прибавка, set флаг, need условие ----------
+const S = {
+  start:{bg:'house',time:'23:40 · ДОМ',text:'Вертолёт ушёл ещё засветло и увёз Гену с аппендицитом. До следующего борта девять дней, если будет погода.\n\nДизель стучит ровно. В полночь срок: снять показания на площадке и передать в Салехард. На столе журнал Гены. Последняя запись сделана не его почерком.',
+    ch:[{t:'Прочитать запись',to:'journal',fear:1},{t:'Одеться и идти на площадку',to:'yard',note:'до срока двадцать минут'}]},
+  journal:{bg:'journal',time:'23:43 · ЖУРНАЛ',text:'«03:00. Давление 987. Ветер 14, порывы 22. На площадке кто-то стоит у будки. Не выходил».\n\nНиже тем же карандашом, но с нажимом: «06:00. Стоит».\n\nЗапись за девять утра сделана уже рукой Гены: цифры, облачность, ни слова лишнего.',
+    ch:[{t:'Идти на площадку',to:'yard'},{t:'Сначала вызвать Салехард',to:'radio'}]},
+  radio:{bg:'radio',time:'23:47 · РАЦИЯ',text:'Салехард отвечает с третьего раза. Женский голос, усталый:\n— Хадата, слышу вас на троечку. Срок в ноль-ноль ждём. Гена долетел, режут.\n\nВы спрашиваете, кто дежурил ночью вместе с Геной. Пауза длиннее, чем нужно для ответа.\n— Хадата, вы там с июня один штат. Повторите вопрос.',
+    ch:[{t:'«Вопрос снят». Идти на площадку',to:'yard',fear:1},{t:'Спросить про запись в журнале',to:'radio2'}]},
+  radio2:{bg:'radio',time:'23:51 · РАЦИЯ',text:'— Журнал не трогайте, — говорит она быстро. — Сроки пишите на отдельном листе. И, Хадата... к будке ходите с фонарём в руке, а не с налобником. Чтобы руки были заняты.\n\nСвязь обрывается раньше, чем вы успеваете спросить зачем.',
+    ch:[{t:'Взять фонарь и идти',to:'yard',fear:1,set:'lantern'}]},
+  yard:{bg:'yard',time:'23:55 · ПЛОЩАДКА',text:'До площадки сорок шагов по лееру. Снег метёт понизу, выше колена ничего не видно, зато небо чистое, и мачта с красной лампой стоит как нарисованная.\n\nБудка на месте. Дверца открыта. Вы точно помните, что Гена закрывал её при вас: он ещё ругался на крючок.',
+    ch:[{t:'Подойти и снять показания',to:'booth'},{t:'Вернуться в дом за ракетницей',to:'flare',fear:1,note:'срок будет сорван на четыре минуты'}]},
+  flare:{bg:'window',time:'23:58 · ДОМ',text:'Ракетница в ящике под рацией, три патрона, все красные. Пока вы возитесь с замком, дизель сбивается с ритма, кашляет и снова берёт ровно.\n\nВ окно видно площадку. Дверца будки теперь закрыта.',
+    ch:[{t:'Идти к будке',to:'booth',fear:1,set:'flare'}]},
+  booth:{bg:'booth',time:'00:00 · БУДКА',text:'Минус двадцать шесть и четыре. Вы пишете цифру на ладони, потому что лист остался в доме.\n\nВнутри, между термометрами, лежит варежка. Серая, вязаная, детская. Снега на ней нет.',
+    ch:[{t:'Взять варежку',to:'end',fear:2,set:'mitten',cls:'danger'},{t:'Закрыть дверцу на крючок и уйти',to:'end'},{t:'Посветить фонарём за будку',to:'behind',need:'lantern',fear:2}]},
+  behind:{bg:'behind',time:'00:01 · ЗА БУДКОЙ',text:'Луч упирается в снег. Следов нет, наст целый. Только у самой стойки протаяла круглая лунка, как от тёплого дыхания, и края её ещё не успели схватиться.\n\nРуки заняты фонарём. Вы понимаете, что это хорошо, раньше, чем понимаете почему.',
+    ch:[{t:'Отступать к дому, не поворачиваясь спиной',to:'end',set:'saw'}]},
+  end:{bg:'aurora',time:'КОНЕЦ ДЕМО',text:'Это первые сцены. Полная версия рассчитана на 25 сцен и 4 концовки: какая выпадет, зависит от варежки, фонаря, ракетницы и от того, сколько страха вы принесли в дом.',
+    ch:[{t:'Пройти ещё раз другим путём',to:'start',reset:true}]}
+};
+// ---------- Состояние и сохранение ----------
+const KEY='hadata-save-v1';
+let st={at:'start',fear:0,flags:{}};
+try{const s=JSON.parse(localStorage.getItem(KEY));if(s&&S[s.at])st=s}catch(e){}
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(st))}catch(e){}};
+const $=id=>document.getElementById(id);
+let typing=null;
+function show(){
+  const sc=S[st.at];
+  $('time').textContent=sc.time;
+  $('fearbar').style.width=Math.min(100,st.fear*17)+'%';
+  $('vignette').style.opacity=Math.min(.95,.5+st.fear*.08);
+  const box=$('choices');box.innerHTML='';
+  // печать в темпе чтения: около 30 знаков в секунду, паузы на точках и абзацах; щелчок по карточке показывает сразу
+  clearTimeout(typing);let i=0;const el=$('text');el.textContent='';let finished=false;
+  const done=()=>{if(finished)return;finished=true;clearTimeout(typing);el.textContent=sc.text;
+    sc.ch.filter(c=>!c.need||st.flags[c.need]).forEach((c,n)=>{
+      const b=document.createElement('button');b.textContent=c.t;if(c.cls)b.className=c.cls;b.style.animationDelay=(n*.12)+'s';
+      if(c.note){const s=document.createElement('small');s.textContent=c.note;b.appendChild(s)}
+      b.onclick=()=>{if(c.reset)st={at:'start',fear:0,flags:{}};else{st.at=c.to;st.fear+=c.fear||0;if(c.set)st.flags[c.set]=1}
+        save();blip();go()};
+      box.appendChild(b)})};
+  const tick=()=>{const ch=sc.text[i++];el.textContent=sc.text.slice(0,i);if(ch&&ch.trim())tap();
+    if(i>=sc.text.length){typing=setTimeout(done,500);return}
+    const d=ch==='\n'?380:/[.!?…]/.test(ch)?420:/[,:;—]/.test(ch)?170:ch===' '?40:30;typing=setTimeout(tick,d)};
+  typing=setTimeout(tick,650);
+  $('card').onclick=done;
+}
+$('reset').onclick=()=>{st={at:'start',fear:0,flags:{}};save();go()};
+// смена сцены: затемнение, новый фон, текст
+let fade=1;function go(){fade=1;show()}
+// ---------- Звук: ветер из шума и низкий гул, без файлов ----------
+let ac=null,windGain=null;
+function sound(on){
+  if(on&&!ac){ac=new (window.AudioContext||window.webkitAudioContext)();
+    const buf=ac.createBuffer(1,ac.sampleRate*3,ac.sampleRate),d=buf.getChannelData(0);
+    for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;
+    const src=ac.createBufferSource();src.buffer=buf;src.loop=true;
+    const f=ac.createBiquadFilter();f.type='bandpass';f.frequency.value=420;f.Q.value=.6;
+    windGain=ac.createGain();windGain.gain.value=.12;src.connect(f).connect(windGain).connect(ac.destination);src.start();
+    const lfo=ac.createOscillator(),lg=ac.createGain();lfo.frequency.value=.13;lg.gain.value=260;lfo.connect(lg).connect(f.frequency);lfo.start();
+    const hum=ac.createOscillator(),hg=ac.createGain();hum.frequency.value=48;hg.gain.value=.05;hum.connect(hg).connect(ac.destination);hum.start()}
+  if(ac)on?ac.resume():ac.suspend();
+  $('snd').textContent='звук: '+(on?'вкл':'выкл');$('snd').dataset.on=on?1:'';
+}
+let lastTap=0;function tap(){if(!ac||ac.state!=='running')return;const n=performance.now();if(n-lastTap<55)return;lastTap=n;const o=ac.createOscillator(),g=ac.createGain();o.type='square';o.frequency.value=1800+Math.random()*500;g.gain.setValueAtTime(.012,ac.currentTime);g.gain.exponentialRampToValueAtTime(.0001,ac.currentTime+.03);o.connect(g).connect(ac.destination);o.start();o.stop(ac.currentTime+.03)}
+function blip(){if(!ac||ac.state!=='running')return;const o=ac.createOscillator(),g=ac.createGain();o.frequency.value=180;g.gain.setValueAtTime(.08,ac.currentTime);g.gain.exponentialRampToValueAtTime(.001,ac.currentTime+.25);o.connect(g).connect(ac.destination);o.start();o.stop(ac.currentTime+.25)}
+$('snd').onclick=()=>sound(!$('snd').dataset.on);
+// ---------- Картинка: у каждой сцены свой фон, всё рисуется кодом ----------
+const cv=$('c'),x=cv.getContext('2d');let W,H,U,stars=[],snow=[],flakes=[],steam=[];
+function size(){const r=devicePixelRatio||1;W=cv.width=innerWidth*r;H=cv.height=innerHeight*r;U=Math.min(W,H*1.4)/100;
+  stars=Array.from({length:170},()=>[Math.random()*W,Math.random()*H*.6,Math.random()*1.6+.3,Math.random()*6]);
+  snow=Array.from({length:220},()=>[Math.random()*W,H*(.62+Math.random()*.4),Math.random()*3+1,Math.random()*2+.6]);
+  flakes=Array.from({length:120},()=>[Math.random()*W,Math.random()*H,Math.random()*2+.6,Math.random()*1.5+.4])}
+addEventListener('resize',size);size();
+const R=(a,b,c,d,col)=>{x.fillStyle=col;x.fillRect(a,b,c,d)};
+const glow=(cx,cy,r,col,a)=>{const g=x.createRadialGradient(cx,cy,0,cx,cy,r);g.addColorStop(0,col.replace('A',a));g.addColorStop(1,col.replace('A',0));x.fillStyle=g;x.fillRect(cx-r,cy-r,r*2,r*2)};
+const vgrad=(stops)=>{const g=x.createLinearGradient(0,0,0,H);stops.forEach(s=>g.addColorStop(s[0],s[1]));x.fillStyle=g;x.fillRect(0,0,W,H)};
+function sky(t,top=.55){vgrad([[0,'#04101c'],[top,'#0d2a3f'],[top+.13,'#16405a'],[1,'#0a1822']]);
+  for(let k=0;k<3;k++){const a=x.createLinearGradient(0,H*.1,0,H*.55);a.addColorStop(0,'rgba(80,255,190,0)');a.addColorStop(.5,`rgba(${90+k*40},255,${200-k*30},${.10+.04*Math.sin(t/1700+k)})`);a.addColorStop(1,'rgba(80,255,190,0)');
+    x.fillStyle=a;x.beginPath();x.moveTo(0,H*.5);for(let i=0;i<=W;i+=W/40)x.lineTo(i,H*(.3+.06*k)+Math.sin(i/W*6+t/2600+k*2)*H*.07);x.lineTo(W,H*.55);x.lineTo(0,H*.55);x.fill()}
+  stars.forEach(s=>{x.globalAlpha=.5+.5*Math.sin(t/900+s[3]);x.fillStyle='#dff3ff';x.fillRect(s[0],s[1],s[2]*2,s[2]*2)});x.globalAlpha=1}
+function drift(t,speed=1){x.fillStyle='rgba(225,242,255,.75)';snow.forEach(p=>{p[0]+=p[2]*2*speed*(1.6+st.fear*.3);if(p[0]>W)p[0]=-10;x.fillRect(p[0],p[1]+Math.sin(t/500+p[0]/90)*U*.6,p[3]*8,p[3]*2)})}
+function falling(t,col='rgba(230,245,255,.8)'){x.fillStyle=col;flakes.forEach(f=>{f[1]+=f[3]*2;f[0]+=Math.sin(t/700+f[1]/80)*.8+1.2;if(f[1]>H){f[1]=-5;f[0]=Math.random()*W}if(f[0]>W)f[0]=0;x.beginPath();x.arc(f[0],f[1],f[2]*1.6,0,7);x.fill()})}
+const blink=t=>(t%2200)<1100;
+function mast(t,mx,base,top,s=1){x.strokeStyle='#0a0f14';x.lineWidth=U*.5*s;x.beginPath();x.moveTo(mx,base);x.lineTo(mx,top);x.stroke();
+  x.lineWidth=U*.12*s;[-9,9].forEach(d=>{x.beginPath();x.moveTo(mx,top+(base-top)*.08);x.lineTo(mx+d*U*s,base);x.stroke()});
+  if(blink(t))glow(mx,top,U*14*s,'rgba(255,59,48,A)',.9);x.fillStyle=blink(t)?'#ff3b30':'#4a1512';x.beginPath();x.arc(mx,top,U*.7*s,0,7);x.fill()}
+function hills(){x.fillStyle='#071722';x.beginPath();x.moveTo(0,H*.66);[[.1,.55],[.22,.62],[.36,.5],[.5,.6],[.63,.52],[.8,.61],[.92,.54],[1,.6]].forEach(p=>x.lineTo(W*p[0],H*p[1]));x.lineTo(W,H);x.lineTo(0,H);x.fill();
+  const g=x.createLinearGradient(0,H*.66,0,H);g.addColorStop(0,'#1c4258');g.addColorStop(1,'#0b1d29');x.fillStyle=g;x.fillRect(0,H*.68,W,H)}
+function figure(bx,by,a){if(a<=0)return;x.globalAlpha=Math.min(.9,a);x.fillStyle='#02060a';x.beginPath();x.ellipse(bx,by,U*.8,U*1,0,0,7);x.fill();x.fillRect(bx-U*.8,by+U*.8,U*1.6,U*6);x.globalAlpha=1}
+// интерьер дома: доски, лампа, окно с мачтой
+function room(t,warm=1){const sh=Math.sin(t/37)*U*.04;x.save();x.translate(0,sh);
+  vgrad([[0,'#1a0f08'],[.7,'#2a170b'],[1,'#120a05']]);
+  for(let i=0;i<W;i+=U*7){R(i,0,U*.18,H,'rgba(0,0,0,.35)')}
+  for(let j=H*.08;j<H;j+=U*9){R(0,j,W,U*.08,'rgba(0,0,0,.18)')}
+  // окно
+  const wx=W*.6,wy=H*.07,ww=W*.3,wh=H*.36;x.save();x.beginPath();x.rect(wx,wy,ww,wh);x.clip();x.translate(wx,wy);x.scale(ww/W,wh/H);sky(t);hills();mast(t,W*.6,H*.68,H*.2,1.4);falling(t);x.restore();
+  x.strokeStyle='#0c0603';x.lineWidth=U*1.4;x.strokeRect(wx,wy,ww,wh);x.lineWidth=U*.6;x.beginPath();x.moveTo(wx+ww/2,wy);x.lineTo(wx+ww/2,wy+wh);x.moveTo(wx,wy+wh/2);x.lineTo(wx+ww,wy+wh/2);x.stroke();
+  const fr=x.createLinearGradient(wx,wy,wx,wy+wh);fr.addColorStop(0,'rgba(200,230,255,0)');fr.addColorStop(1,'rgba(200,230,255,.25)');x.fillStyle=fr;x.fillRect(wx,wy+wh*.7,ww,wh*.3);
+  // стол
+  R(0,H*.47,W,H*.6,'#1e1108');R(0,H*.47,W,U*.6,'#3b2414');
+  // лампа
+  const fl=.75+.12*Math.sin(t/90)+.08*Math.sin(t/23);const lx=W*.09,ly=H*.3;
+  glow(lx,ly,U*42,'rgba(255,170,70,A)',.45*fl*warm);
+  R(lx-U*2.2,ly+U*7,U*4.4,U*1.2,'#2c1a0c');x.fillStyle='rgba(255,220,150,.18)';x.beginPath();x.ellipse(lx,ly+U*2,U*2.6,U*5,0,0,7);x.fill();
+  x.fillStyle=`rgba(255,${190+fl*40|0},110,${fl})`;x.beginPath();x.ellipse(lx,ly+U*2.4,U*.5,U*1.3,0,0,7);x.fill();
+  x.restore()}
+function journal(t){room(t);const jx=W*.2,jy=H*.2;x.save();x.translate(jx,jy);x.rotate(-.06);
+  R(0,0,W*.3,H*.22,'#e8dcc0');R(W*.15-U*.15,0,U*.3,H*.22,'rgba(0,0,0,.25)');
+  x.strokeStyle='rgba(60,60,90,.35)';x.lineWidth=U*.08;for(let j=U*2;j<H*.22;j+=U*1.6){x.beginPath();x.moveTo(U,j);x.lineTo(W*.3-U,j);x.stroke()}
+  x.strokeStyle='#2a2a3a';x.lineWidth=U*.18;for(let k=0;k<5;k++){x.beginPath();let px=W*.16;x.moveTo(px,U*3+k*U*1.6);for(;px<W*.28-k*U*2;px+=U*.6)x.lineTo(px,U*3+k*U*1.6+Math.sin(px*1.7+k)*U*.25);x.stroke()}
+  x.strokeStyle='#5a0e0e';x.lineWidth=U*.3;x.beginPath();x.moveTo(W*.16,U*12);for(let px=W*.16;px<W*.26;px+=U*.5)x.lineTo(px,U*12+Math.sin(px*2.3)*U*.45);x.stroke();
+  x.restore();glow(W*.33,H*.3,U*30,'rgba(255,160,60,A)',.12)}
+function radio(t){vgrad([[0,'#04110c'],[1,'#020806']]);
+  const px=W*.18,py=H*.07,pw=W*.64,ph=H*.42;R(px,py,pw,ph,'#141a16');R(px,py,pw,U*1,'#26302a');
+  x.strokeStyle='#2c3a32';x.lineWidth=U*.3;x.strokeRect(px,py,pw,ph);
+  // экран с волной
+  const sx=px+pw*.06,sy=py+ph*.12,sw=pw*.5,shh=ph*.5;R(sx,sy,sw,shh,'#031a10');glow(sx+sw/2,sy+shh/2,sw*.6,'rgba(60,255,150,A)',.18);
+  x.strokeStyle='rgba(80,255,160,.9)';x.lineWidth=U*.25;x.beginPath();for(let i=0;i<=sw;i+=2){const n=Math.sin(i/14+t/120)*Math.sin(i/90+t/700)*(st.at==='radio2'?.15:.4);x.lineTo(sx+i,sy+shh/2+n*shh*(.6+.4*Math.sin(t/300)))}x.stroke();
+  x.strokeStyle='rgba(80,255,160,.12)';x.lineWidth=1;for(let i=1;i<6;i++){x.beginPath();x.moveTo(sx+sw*i/6,sy);x.lineTo(sx+sw*i/6,sy+shh);x.stroke()}
+  // ручки и лампочки
+  [[.68,.3],[.82,.3],[.68,.62],[.82,.62]].forEach((k,n)=>{const cx=px+pw*k[0],cy=py+ph*k[1];x.fillStyle='#0a0e0c';x.beginPath();x.arc(cx,cy,U*3,0,7);x.fill();x.strokeStyle='#3a4a40';x.lineWidth=U*.3;x.stroke();
+    const a=t/(1400+n*300)+n;x.beginPath();x.moveTo(cx,cy);x.lineTo(cx+Math.cos(a)*U*2.4,cy+Math.sin(a)*U*2.4);x.strokeStyle='#cfe';x.stroke()});
+  for(let i=0;i<6;i++){const on=Math.sin(t/(200+i*70)+i)>0;x.fillStyle=on?(i===5?'#ff3b30':'#5cff9d'):'#132';x.beginPath();x.arc(sx+U*2+i*U*3,py+ph*.8,U*.6,0,7);x.fill();if(on)glow(sx+U*2+i*U*3,py+ph*.8,U*3,i===5?'rgba(255,59,48,A)':'rgba(92,255,157,A)',.4)}
+  // микрофон и шнур
+  x.strokeStyle='#0b0f0d';x.lineWidth=U*.6;x.beginPath();x.moveTo(px+pw*.92,py+ph);x.bezierCurveTo(px+pw*.95,H*.8,W*.75,H*.78,W*.7,H*.72);x.stroke();
+  x.fillStyle='#1a201c';x.beginPath();x.ellipse(W*.7,H*.72,U*2.6,U*1.6,-.4,0,7);x.fill();
+  if(st.at==='radio2'&&(t%5000)<260){R(0,0,W,H,'rgba(140,255,200,.06)')}}
+function yard(t){sky(t);hills();mast(t,W*.72,H*.68,H*.2);
+  const hx=W*.18,hy=H*.6;R(hx,hy,U*22,U*10,'#060c11');x.fillStyle='#060c11';x.beginPath();x.moveTo(hx-U,hy);x.lineTo(hx+U*11,hy-U*5);x.lineTo(hx+U*23,hy);x.fill();
+  glow(hx+U*6,hy+U*5,U*16,'rgba(255,196,92,A)',.55);R(hx+U*4,hy+U*3.5,U*4,U*3.4,'#ffc45c');
+  x.strokeStyle='rgba(10,20,28,.9)';x.lineWidth=U*.15;x.beginPath();x.moveTo(hx+U*22,hy+U*8);x.quadraticCurveTo(W*.4,hy+U*10,W*.52,H*.66);x.stroke();
+  const bx=W*.52,by=H*.64;R(bx,by,U*4.4,U*4.2,'#0a1218');R(bx+U*.6,by+U*4.2,U*.35,U*4,'#0a1218');R(bx+U*3.4,by+U*4.2,U*.35,U*4,'#0a1218');
+  if(st.at==='yard'){x.fillStyle='#0a1218';x.save();x.translate(bx+U*4.4,by);x.rotate(.5+Math.sin(t/600)*.15);x.fillRect(0,0,U*.3,U*4.2);x.restore()}
+  figure(bx+U*7,by+U*1.2,(st.fear-2)*.3);drift(t)}
+function win(t){room(t,.6);R(0,0,W,H,'rgba(120,0,0,.18)');
+  const wx=W*.6,wy=H*.07,ww=W*.3,wh=H*.36;x.save();x.beginPath();x.rect(wx,wy,ww,wh);x.clip();
+  const bx=wx+ww*.45,by=wy+wh*.66;R(bx,by,U*2.4,U*2.2,'#05090c');R(bx+U*.3,by+U*2.2,U*.2,U*2,'#05090c');R(bx+U*1.9,by+U*2.2,U*.2,U*2,'#05090c');x.restore();
+  // ракетница на столе
+  x.save();x.translate(W*.2,H*.36);x.rotate(-.2);R(0,0,U*12,U*2.4,'#2a2a2a');R(U*8,U*2.4,U*2.4,U*4.6,'#1c1c1c');R(-U*1,U*.4,U*1.2,U*1.6,'#b51d14');x.restore();
+  [0,1,2].forEach(i=>{R(W*.4+i*U*2.6,H*.36,U*1.8,U*4,'#b51d14');R(W*.4+i*U*2.6,H*.36,U*1.8,U*1,'#d4a64a')})}
+function booth(t){vgrad([[0,'#061320'],[1,'#0b2232']]);falling(t);
+  const bx=W*.5-U*16,by=H*.1,bw=U*32,bh=H*.48;
+  R(bx-U*1.5,by-U*2,bw+U*3,U*2.5,'#c9d6dd');R(bx,by,bw,bh,'#dfe8ec');
+  for(let j=by+U*2;j<by+bh-U;j+=U*2.2){R(bx,j,bw,U*.7,'rgba(70,90,100,.45)')}
+  // открытая дверца
+  x.save();x.translate(bx+bw,by);x.transform(.35,.12,0,1,0,0);R(0,0,bw,bh,'#c3cfd5');for(let j=U*2;j<bh-U;j+=U*2.2)R(0,j,bw,U*.7,'rgba(60,80,90,.45)');x.restore();
+  R(bx+U*2,by+U*2,bw-U*4,bh-U*4,'#0b1418');
+  // термометры
+  [[.2,.62],[.38,.48],[.56,.7]].forEach(k=>{const tx=bx+bw*k[0],ty=by+U*5,tl=bh*.62;R(tx-U*.5,ty,U*1,tl,'#a9c2cc');R(tx-U*.18,ty+tl*(1-k[1]),U*.36,tl*k[1],k[1]>.6?'#d33':'#3a7bd5');x.fillStyle=k[1]>.6?'#d33':'#3a7bd5';x.beginPath();x.arc(tx,ty+tl,U*.8,0,7);x.fill()});
+  // варежка
+  if(!st.flags.mitten){const mx=bx+bw*.78,my=by+bh*.7;x.fillStyle='#8c9196';x.beginPath();x.ellipse(mx,my,U*2.4,U*3.2,.3,0,7);x.fill();x.beginPath();x.ellipse(mx-U*2.2,my-U*.6,U*.9,U*1.6,-.6,0,7);x.fill();R(mx-U*1.8,my+U*2.2,U*3.4,U*1.6,'#6c7176');
+    x.strokeStyle='rgba(60,64,68,.6)';x.lineWidth=U*.12;for(let i=-2;i<3;i++){x.beginPath();x.moveTo(mx+i*U*.6,my-U*2.4);x.lineTo(mx+i*U*.6,my+U*2);x.stroke()}}
+  R(bx+U*4,by+bh,U*1,H-by-bh,'#1b2a33');R(bx+bw-U*5,by+bh,U*1,H-by-bh,'#1b2a33');
+  const g=x.createLinearGradient(0,H*.78,0,H);g.addColorStop(0,'#2a5a74');g.addColorStop(1,'#10283a');x.fillStyle=g;x.fillRect(0,H*.8,W,H);
+  if(st.flags.lantern)glow(W*.5,H*.4,U*40,'rgba(255,230,170,A)',.12)}
+function behind(t){R(0,0,W,H,'#010305');const cx=W*.5,cy=H*.6;
+  x.save();x.beginPath();x.moveTo(W*.5,H);x.lineTo(W*.12,H*.32);x.quadraticCurveTo(W*.5,H*.2,W*.88,H*.32);x.closePath();x.clip();
+  const g=x.createRadialGradient(cx,H*.95,0,cx,H*.5,H*.8);g.addColorStop(0,'#c9d7e0');g.addColorStop(.6,'#5f7787');g.addColorStop(1,'#0b141a');x.fillStyle=g;x.fillRect(0,0,W,H);
+  for(let i=0;i<500;i++){const a=(i*137.5)%W,b=H*.3+((i*71)%(H*.7));x.fillStyle=`rgba(255,255,255,${.15+(i%5)*.05})`;x.fillRect(a,b,2,2)}
+  // лунка
+  x.fillStyle='#24323b';x.beginPath();x.ellipse(cx+U*4,cy,U*6,U*2,0,0,7);x.fill();x.fillStyle='#0d161c';x.beginPath();x.ellipse(cx+U*4,cy+U*.3,U*4.6,U*1.4,0,0,7);x.fill();
+  if(steam.length<40&&Math.random()<.3)steam.push([cx+U*4+(Math.random()-.5)*U*6,cy,0]);
+  steam.forEach(s=>{s[1]-=U*.08;s[2]+=1;x.fillStyle=`rgba(230,240,245,${Math.max(0,.18-s[2]/600)})`;x.beginPath();x.arc(s[0]+Math.sin(s[2]/20)*U,s[1],U*(1+s[2]/60),0,7);x.fill()});steam=steam.filter(s=>s[2]<110);
+  R(cx-U*20,H*.36,U*1.4,H*.3,'#1d2a32');x.restore();
+  const h=(Math.sin(t/300)+Math.sin(t/170))*.03;R(0,0,W,H,`rgba(0,0,0,${.05+h})`)}
+function aurora(t){sky(t,.7);x.fillStyle='#030a10';x.beginPath();x.moveTo(0,H);x.lineTo(0,H*.82);for(let i=0;i<=W;i+=W/30)x.lineTo(i,H*.82-Math.abs(Math.sin(i/W*9))*H*.05);x.lineTo(W,H);x.fill();mast(t,W*.82,H*.83,H*.62,.5)}
+const BG={house:room,journal,radio,yard,window:win,booth,behind,aurora};
+function draw(t){(BG[S[st.at].bg]||yard)(t);
+  if(fade>0){R(0,0,W,H,`rgba(0,0,0,${fade})`);fade=Math.max(0,fade-.025)}
+  requestAnimationFrame(draw)}
+requestAnimationFrame(draw);go();
+</script>
+</body>
+</html>

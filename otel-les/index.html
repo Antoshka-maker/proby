@@ -1,0 +1,364 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Хвоя · отель в лесу</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,500;0,600;1,500&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#fff;--muted:rgba(255,255,255,.78);--glass:rgba(16,22,18,.38);--line:rgba(255,255,255,.22);
+  --accent:#e7b766;--accent-ink:#1d1a12;--panel:rgba(14,20,17,.62);
+}
+html.ny{--accent:#f3d58a;--glass:rgba(10,20,40,.36);--panel:rgba(10,18,36,.62)}
+*{box-sizing:border-box}
+html,body{margin:0;background:#0d120f;color:var(--ink);font-family:Manrope,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+html.ny body{background:#0a1224}
+canvas#gl{position:fixed;inset:0;width:100vw;height:100vh;display:block;z-index:0}
+.shade{position:fixed;inset:0;z-index:1;pointer-events:none;
+  background:linear-gradient(90deg,rgba(6,10,8,.62) 0%,rgba(6,10,8,.32) 34%,rgba(6,10,8,0) 58%),linear-gradient(0deg,rgba(6,10,8,.55) 0%,rgba(6,10,8,0) 32%),linear-gradient(180deg,rgba(6,10,8,.45) 0%,rgba(6,10,8,0) 18%)}
+html.ny .shade{background:linear-gradient(90deg,rgba(6,12,30,.6) 0%,rgba(6,12,30,.28) 34%,rgba(6,12,30,0) 58%),linear-gradient(0deg,rgba(6,12,30,.55) 0%,rgba(6,12,30,0) 32%),linear-gradient(180deg,rgba(6,12,30,.45) 0%,rgba(6,12,30,0) 18%)}
+header{position:fixed;top:0;left:0;right:0;z-index:5;display:flex;align-items:center;gap:28px;padding:22px clamp(16px,4vw,56px)}
+.logo{font-family:Cormorant,serif;font-weight:600;font-size:30px;letter-spacing:.06em;line-height:1;white-space:nowrap}
+.logo small{display:block;font-family:Manrope,sans-serif;font-size:10px;letter-spacing:.32em;text-transform:uppercase;color:var(--muted);margin-top:5px;font-weight:600}
+nav{display:flex;gap:26px;font-size:14px;font-weight:500;margin-left:12px}
+nav a{color:var(--ink);text-decoration:none;opacity:.86}
+nav a:hover{opacity:1}
+.sp{flex:1}
+.phone{font-size:14px;font-weight:600;white-space:nowrap;color:var(--ink);text-decoration:none}
+.toggle{position:relative;display:flex;align-items:center;padding:4px;border-radius:999px;background:var(--glass);border:1px solid var(--line);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);cursor:pointer;user-select:none}
+.toggle button{position:relative;z-index:1;display:flex;align-items:center;gap:7px;border:0;background:none;color:var(--ink);font:600 13px Manrope,sans-serif;padding:8px 14px;border-radius:999px;cursor:pointer;transition:color .4s}
+.toggle button svg{width:16px;height:16px}
+.toggle .knob{position:absolute;top:4px;bottom:4px;left:4px;border-radius:999px;background:#fff;transition:transform .55s cubic-bezier(.7,0,.2,1),width .55s cubic-bezier(.7,0,.2,1)}
+.toggle button.on{color:#16201a}
+html.ny .toggle button.on{color:#0e1a33}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;border:0;border-radius:999px;background:var(--accent);color:var(--accent-ink);font:700 15px Manrope,sans-serif;padding:16px 28px;cursor:pointer;text-decoration:none;transition:transform .2s,box-shadow .2s,background .6s;box-shadow:0 10px 30px rgba(0,0,0,.25)}
+.btn:hover{transform:translateY(-2px);box-shadow:0 16px 38px rgba(0,0,0,.32)}
+.hero{position:relative;z-index:3;min-height:100vh;min-height:100svh;display:flex;flex-direction:column;justify-content:flex-end;padding:0 clamp(16px,4vw,56px) clamp(28px,5vh,56px)}
+.hero .txt{max-width:620px;margin-bottom:clamp(26px,5vh,48px);will-change:transform,opacity}
+.eyebrow{display:inline-flex;align-items:center;gap:10px;font-size:12px;font-weight:700;letter-spacing:.24em;text-transform:uppercase;color:var(--muted)}
+.eyebrow i{display:block;width:34px;height:1px;background:var(--muted)}
+h1{font-family:Cormorant,serif;font-weight:500;font-size:clamp(46px,7.2vw,104px);line-height:.95;letter-spacing:-.01em;margin:18px 0 18px}
+h1 em{font-style:italic;color:var(--accent);transition:color .6s}
+.lead{font-size:clamp(15px,1.3vw,18px);line-height:1.6;color:var(--muted);max-width:470px;margin:0}
+.swap{display:grid}
+.swap>[data-t]{grid-area:1/1;transition:opacity .7s ease .25s,transform .7s ease .25s}
+.hero .swap>[data-t]{align-self:end}
+.swap>[data-t="ny"]{opacity:0;transform:translateY(14px);pointer-events:none}
+html.ny .swap>[data-t="ny"]{opacity:1;transform:none;pointer-events:auto}
+html.ny .swap>[data-t="day"]{opacity:0;transform:translateY(-14px);pointer-events:none}
+.badge{display:inline-flex;align-items:center;gap:8px;margin-top:18px;padding:8px 14px;border-radius:999px;background:rgba(243,213,138,.16);border:1px solid rgba(243,213,138,.45);font-size:13px;font-weight:600;color:#f6e3b0}
+.book{display:grid;grid-template-columns:1.1fr 1.1fr .9fr auto;align-items:stretch;max-width:880px;border-radius:22px;background:var(--glass);border:1px solid var(--line);backdrop-filter:blur(14px) saturate(1.2);-webkit-backdrop-filter:blur(14px) saturate(1.2);overflow:hidden;will-change:transform,opacity}
+.book label{display:flex;flex-direction:column;gap:5px;padding:14px 20px;border-right:1px solid var(--line);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.book input,.book select{background:none;border:0;outline:0;color:var(--ink);font:600 16px Manrope,sans-serif;padding:0;letter-spacing:0;text-transform:none;color-scheme:dark;width:100%}
+.book select option{color:#111}
+.book .btn{border-radius:0;padding:0 30px;box-shadow:none}
+.book .btn:hover{transform:none}
+.hint{position:absolute;right:clamp(16px,4vw,56px);bottom:clamp(30px,5vh,58px);display:flex;align-items:center;gap:10px;font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted)}
+.hint span{display:block;width:1px;height:46px;background:linear-gradient(var(--muted),transparent);animation:drip 2.2s infinite}
+@keyframes drip{0%{transform:scaleY(0);transform-origin:top}50%{transform:scaleY(1);transform-origin:top}51%{transform-origin:bottom}100%{transform:scaleY(0);transform-origin:bottom}}
+section.second{position:relative;z-index:3;min-height:100vh;display:flex;align-items:center;padding:12vh clamp(16px,4vw,56px)}
+.panel{width:min(1040px,100%);margin:0 auto;display:grid;grid-template-columns:1.1fr 1fr;gap:clamp(24px,4vw,56px);padding:clamp(24px,4vw,52px);border-radius:28px;background:var(--panel);border:1px solid var(--line);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
+.panel h2{font-family:Cormorant,serif;font-weight:500;font-size:clamp(34px,4.4vw,56px);line-height:1;margin:0 0 16px}
+.panel p{color:var(--muted);line-height:1.6;margin:0 0 22px}
+.facts{display:grid;grid-template-columns:1fr 1fr;gap:16px 22px;margin-top:8px}
+.facts div{border-top:1px solid var(--line);padding-top:12px;font-size:14px;color:var(--muted)}
+.facts b{display:block;font-family:Cormorant,serif;font-size:30px;font-weight:600;color:var(--ink);margin-bottom:2px}
+form.f{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+form.f .full{grid-column:1/-1}
+form.f label{display:flex;flex-direction:column;gap:6px;font-size:12px;color:var(--muted);font-weight:600}
+form.f input,form.f select{height:48px;border-radius:12px;border:1px solid var(--line);background:rgba(255,255,255,.06);color:var(--ink);font:500 15px Manrope,sans-serif;padding:0 14px;outline:0;color-scheme:dark}
+form.f input:focus,form.f select:focus{border-color:var(--accent)}
+form.f select option{color:#111}
+form.f .btn{width:100%;margin-top:6px}
+.ok{display:none;padding:14px;border-radius:12px;background:rgba(255,255,255,.08);font-weight:600}
+.dwrap{position:relative;display:block}
+.dwrap input[type=date]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.dwrap .dv{display:flex;align-items:center;height:100%}
+form.f .dwrap .dv{height:48px;border-radius:12px;border:1px solid var(--line);background:rgba(255,255,255,.06);padding:0 14px;font:500 15px Manrope,sans-serif;color:var(--ink)}
+.book .dwrap .dv{font:600 16px Manrope,sans-serif;color:var(--ink);letter-spacing:0;text-transform:none}
+.cursor{position:fixed;z-index:50;width:22px;height:22px;margin:-11px 0 0 -11px;border-radius:50%;border:2px solid #fff;background:rgba(255,255,255,.25);box-shadow:0 2px 10px rgba(0,0,0,.4);pointer-events:none;display:none;transition:transform .15s}
+.cursor.down{transform:scale(.7)}
+@media (max-width:980px){nav,.phone{display:none}}
+@media (max-width:720px){
+  header{padding:14px 16px;gap:12px}
+  .logo{font-size:24px}.logo small{display:none}
+  .toggle button{padding:8px 10px;font-size:12px}
+  .toggle button .l{display:none}
+  .book{grid-template-columns:1fr 1fr;border-radius:18px}
+  .book label{padding:12px 14px;border-bottom:1px solid var(--line)}
+  .book label:nth-child(2){border-right:0}
+  .book label:nth-child(3){grid-column:1/-1;border-right:0}
+  .book .btn{grid-column:1/-1;padding:16px}
+  .hint{display:none}
+  .eyebrow{font-size:10px;letter-spacing:.16em}
+  .shade,html.ny .shade{background:linear-gradient(0deg,rgba(6,10,14,.88) 0%,rgba(6,10,14,.6) 45%,rgba(6,10,14,0) 72%),linear-gradient(180deg,rgba(6,10,14,.5) 0%,rgba(6,10,14,0) 16%)}
+  .panel{grid-template-columns:1fr}
+  form.f{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<canvas id="gl"></canvas>
+<div class="shade"></div>
+<div class="cursor" id="cur"></div>
+
+<header>
+  <div class="logo">ХВОЯ<small>отель в лесу</small></div>
+  <nav><a href="#book">Номера</a><a href="#book">Баня и спа</a><a href="#book">Ресторан</a><a href="#book">Контакты</a></nav>
+  <div class="sp"></div>
+  <a class="phone" href="#book">+7 (900) 000-00-00</a>
+  <div class="toggle" id="tg" role="group" aria-label="Тема сайта">
+    <div class="knob" id="knob"></div>
+    <button type="button" data-v="day" class="on" aria-pressed="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 3c-3 4-5 7-5 10a5 5 0 0 0 10 0c0-3-2-6-5-10z"/><path d="M12 13v8"/></svg><span class="l">Обычная</span></button>
+    <button type="button" data-v="ny" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 2v20M2 12h20M4.9 4.9l14.2 14.2M19.1 4.9 4.9 19.1"/><path d="m9 3 3 3 3-3M9 21l3-3 3 3M3 9l3 3-3 3M21 9l-3 3 3 3"/></svg><span class="l">Новогодняя</span></button>
+  </div>
+</header>
+
+<main>
+  <section class="hero">
+    <div class="txt" id="htxt">
+      <div class="eyebrow"><i></i>Загородный отель в сосновом лесу</div>
+      <div class="swap">
+        <div data-t="day">
+          <h1>Тишина,<br>которую <em>слышно</em></h1>
+          <p class="lead">Дома из лиственницы среди вековых сосен, панорамные окна, баня на дровах и завтраки на террасе</p>
+        </div>
+        <div data-t="ny">
+          <h1>Новый год<br>в <em>снежном</em> лесу</h1>
+          <p class="lead">Камин, гирлянды на террасе, праздничный ужин и прогулки по зимнему лесу с фонарями</p>
+          <div class="badge">❄ Новогодние заезды 29 декабря – 8 января</div>
+        </div>
+      </div>
+    </div>
+    <form class="book" id="bk" onsubmit="event.preventDefault();document.getElementById('book').scrollIntoView({behavior:'smooth'})">
+      <label>Заезд<input type="date" id="d1"></label>
+      <label>Выезд<input type="date" id="d2"></label>
+      <label>Гости<select><option>2 взрослых</option><option>1 взрослый</option><option>2 взрослых, 1 ребёнок</option><option>4 гостя</option></select></label>
+      <button class="btn" type="submit">Найти дом</button>
+    </form>
+    <div class="hint"><span></span>Листайте</div>
+  </section>
+
+  <section class="second" id="book">
+    <div class="panel">
+      <div>
+        <h2 class="swap"><span data-t="day">Забронировать дом</span><span data-t="ny">Встретить Новый год у нас</span></h2>
+        <p>Оставьте даты и телефон, администратор перезвонит в течение 15 минут и подберёт дом</p>
+        <div class="facts">
+          <div><b>12</b>домов на 2–6 гостей</div>
+          <div><b>1,5 ч</b>от города на машине</div>
+          <div><b>40 га</b>соснового леса</div>
+          <div><b>24/7</b>ресепшн и трансфер</div>
+        </div>
+      </div>
+      <form class="f" onsubmit="event.preventDefault();this.querySelector('.ok').style.display='block'">
+        <label>Заезд<input type="date" id="f1"></label>
+        <label>Выезд<input type="date" id="f2"></label>
+        <label>Гости<select><option>2 взрослых</option><option>1 взрослый</option><option>2 взрослых, 1 ребёнок</option><option>4 гостя</option></select></label>
+        <label>Дом<select><option>Любой свободный</option><option>Шале с камином</option><option>Дом у ручья</option><option>Семейный дом</option></select></label>
+        <label class="full">Имя<input placeholder="Как к вам обращаться"></label>
+        <label class="full">Телефон<input type="tel" placeholder="+7"></label>
+        <div class="full"><button class="btn" type="submit">Отправить заявку</button></div>
+        <div class="ok full">Спасибо, мы перезвоним</div>
+      </form>
+    </div>
+  </section>
+</main>
+
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js"}}</script>
+<script type="module">
+import * as THREE from 'three';
+
+const REC = new URLSearchParams(location.search).has('rec');
+const IMG_ASPECT = 2560/1097;
+const canvas = document.getElementById('gl');
+const renderer = new THREE.WebGLRenderer({canvas, antialias:false, alpha:false, preserveDrawingBuffer:REC});
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.autoClear = false;
+
+// ---------- фото с глубиной ----------
+const loader = new THREE.TextureLoader();
+const tex = (u, color) => { const t = loader.load(u); t.colorSpace = color ? THREE.SRGBColorSpace : THREE.NoColorSpace; t.minFilter = THREE.LinearFilter; t.generateMipmaps = false; return t; };
+const U = {
+  tL:{value:tex('leto.jpg',1)}, tZ:{value:tex('zima.jpg',1)},
+  dL:{value:tex('depth-leto.png',0)}, dZ:{value:tex('depth-zima.png',0)},
+  uMix:{value:0}, uMouse:{value:new THREE.Vector2()}, uTime:{value:0},
+  uRes:{value:new THREE.Vector2(1,1)}, uScroll:{value:0}, uIntro:{value:0}
+};
+const quadScene = new THREE.Scene();
+const quadCam = new THREE.OrthographicCamera(-1,1,1,-1,0,1);
+quadScene.add(new THREE.Mesh(new THREE.PlaneGeometry(2,2), new THREE.ShaderMaterial({
+  uniforms:U,
+  vertexShader:`varying vec2 vUv;void main(){vUv=uv;gl_Position=vec4(position.xy,0.,1.);}`,
+  fragmentShader:`
+  precision highp float;
+  uniform sampler2D tL,tZ,dL,dZ; uniform float uMix,uTime,uScroll,uIntro; uniform vec2 uMouse,uRes;
+  varying vec2 vUv;
+  const float IA=${IMG_ASPECT.toFixed(5)};
+  float h(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
+  float n(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return mix(mix(h(i),h(i+vec2(1,0)),f.x),mix(h(i+vec2(0,1)),h(i+vec2(1,1)),f.x),f.y);}
+  float fbm(vec2 p){float s=0.,a=.5;for(int i=0;i<5;i++){s+=a*n(p);p*=2.03;a*=.5;}return s;}
+  vec2 baseUv(){
+    float va=uRes.x/uRes.y; vec2 s=va>IA?vec2(1.,IA/va):vec2(va/IA,1.);
+    float sc=1.07+uIntro*.06;
+    vec2 half_=.5*s/sc;
+    vec2 foc=vec2(mix(.5,.6,clamp((IA-va)/IA*1.3,0.,1.)),.5);
+    foc=clamp(foc,half_,1.-half_);
+    return foc+(vUv-.5)*s/sc;
+  }
+  vec2 warp2(vec2 uv,sampler2D d){
+    vec2 cen=vec2(.74,.52);
+    float z=texture2D(d,uv).r;
+    vec2 o=-(uv-cen)*uScroll*(.09+.12*z)-uMouse*vec2(.018,.012)*(z-.38);
+    z=texture2D(d,uv+o).r;
+    o=-(uv-cen)*uScroll*(.09+.12*z)-uMouse*vec2(.018,.012)*(z-.38);
+    return uv+o;
+  }
+  float lum(vec3 c){return dot(c,vec3(.299,.587,.114));}
+  void main(){
+    vec2 uv=baseUv();
+    vec2 uL=warp2(uv,dL), uZ=warp2(uv,dZ);
+    vec3 cL=texture2D(tL,uL).rgb;
+    vec3 cZ=texture2D(tZ,uZ).rgb;
+    // лето: дыхание солнца и тёплая дымка
+    vec2 sun=vec2(.185,.69); float ds=distance(uL*vec2(IA,1.),sun*vec2(IA,1.));
+    cL+=vec3(1.,.72,.35)*(.10+.05*sin(uTime*.9))*exp(-ds*5.5);
+    cL+=vec3(1.,.8,.5)*.05*fbm(uL*4.+vec2(uTime*.03,0.))*smoothstep(.2,.9,1.-uL.y);
+    // зима: мерцание гирлянд и фонарей
+    vec3 avg=vec3(0.); float e=.0035;
+    avg+=texture2D(tZ,uZ+vec2(e,0)).rgb+texture2D(tZ,uZ-vec2(e,0)).rgb+texture2D(tZ,uZ+vec2(0,e*IA)).rgb+texture2D(tZ,uZ-vec2(0,e*IA)).rgb; avg*=.25;
+    float warm=smoothstep(.12,.3,cZ.r-cZ.b);
+    float bulb=smoothstep(.06,.2,lum(cZ)-lum(avg))*warm;
+    float tw=.55+.9*n(uZ*vec2(900.,380.)+uTime*vec2(1.7,-1.3));
+    cZ+=cZ*bulb*(tw-.7)*1.4+vec3(1.,.8,.45)*bulb*max(tw-1.,0.)*.6;
+    float lamp=smoothstep(.55,.85,lum(cZ))*warm;
+    cZ*=1.+lamp*.08*sin(uTime*7.+h(floor(uZ*60.))*6.)*.5;
+    // переход: снег «наползает» сверху вниз рваным краем
+    float p=.62*(1.-vUv.y)+.38*fbm(vUv*vec2(5.,3.)+3.);
+    float m=uMix*1.25-.12;
+    float k=smoothstep(p-.06,p+.06,m);
+    float edge=exp(-pow((m-p)/.035,2.))*step(.001,uMix)*step(uMix,.999);
+    vec3 c=mix(cL,cZ,k);
+    c+=vec3(.85,.93,1.)*edge*.55;
+    // виньетка
+    vec2 q=vUv-.5; c*=1.-.35*dot(q,q);
+    gl_FragColor=vec4(c,1.);
+    #include <colorspace_fragment>
+  }`
+})));
+
+// ---------- частицы: снег и пыльца в объёме ----------
+const scene = new THREE.Scene();
+const cam = new THREE.PerspectiveCamera(55, 1, .1, 200);
+cam.position.set(0,0,12);
+function sprite(soft){
+  const c=document.createElement('canvas');c.width=c.height=64;const g=c.getContext('2d');
+  const r=g.createRadialGradient(32,32,0,32,32,32);
+  r.addColorStop(0,'rgba(255,255,255,1)');r.addColorStop(soft?.25:.45,'rgba(255,255,255,.8)');r.addColorStop(1,'rgba(255,255,255,0)');
+  g.fillStyle=r;g.fillRect(0,0,64,64);const t=new THREE.CanvasTexture(c);return t;
+}
+const mobile = matchMedia('(max-width:720px)').matches;
+function field(N, color, size, spread, add){
+  const g=new THREE.BufferGeometry();const p=new Float32Array(N*3),s=new Float32Array(N);
+  for(let i=0;i<N;i++){p[i*3]=(Math.random()-.5)*spread[0];p[i*3+1]=(Math.random()-.5)*spread[1];p[i*3+2]=-Math.random()*spread[2]+10;s[i]=Math.random();}
+  g.setAttribute('position',new THREE.BufferAttribute(p,3));g.setAttribute('seed',new THREE.BufferAttribute(s,1));
+  const mat=new THREE.ShaderMaterial({transparent:true,depthWrite:false,blending:add?THREE.AdditiveBlending:THREE.NormalBlending,
+    uniforms:{map:{value:sprite(1)},uOp:{value:0},uSize:{value:size},uColor:{value:new THREE.Color(color)},uPR:{value:renderer.getPixelRatio()},uH:{value:800}},
+    vertexShader:`attribute float seed;uniform float uSize,uPR,uH;varying float vS;varying float vD;
+      void main(){vS=seed;vec4 mv=modelViewMatrix*vec4(position,1.);gl_Position=projectionMatrix*mv;vD=-mv.z;
+      gl_PointSize=uSize*(.5+seed)*uPR*uH/800.*24./max(vD,.5);}`,
+    fragmentShader:`uniform sampler2D map;uniform float uOp;uniform vec3 uColor;varying float vS;varying float vD;
+      void main(){float a=texture2D(map,gl_PointCoord).a;float fade=smoothstep(.4,3.,vD)*(1.-smoothstep(30.,48.,vD));
+      gl_FragColor=vec4(uColor,a*uOp*fade*(.35+.65*vS));}`});
+  const pts=new THREE.Points(g,mat);pts.frustumCulled=false;scene.add(pts);return pts;
+}
+const snow = field(mobile?1200:2600, 0xffffff, 5.5, [44,26,34]);
+const flakesBig = field(mobile?50:110, 0xe9f2ff, 15, [30,20,9]); // крупные хлопья у камеры, размытые
+const dust = field(mobile?160:360, 0xffd48a, 3.2, [40,24,30], true);
+function stepField(f, dt, t, vy, sway){
+  const a=f.geometry.attributes.position.array, s=f.geometry.attributes.seed.array;
+  for(let i=0;i<s.length;i++){
+    const j=i*3, k=s[i];
+    a[j+1]-=vy*(.6+k*.8)*dt;
+    a[j]+=Math.sin(t*(.4+k)+k*20.)*sway*dt+wind*dt*(.5+k);
+    if(vy<0){a[j+2]+=Math.cos(t*.3+k*9.)*.15*dt;}
+    if(a[j+1]<-14){a[j+1]=14;a[j]=(Math.random()-.5)*44;}
+    if(a[j+1]>14){a[j+1]=-14;}
+    if(a[j]>24)a[j]-=48; if(a[j]<-24)a[j]+=48;
+  }
+  f.geometry.attributes.position.needsUpdate=true;
+}
+let wind=0;
+
+// ---------- тема ----------
+const root=document.documentElement, tg=document.getElementById('tg'), knob=document.getElementById('knob');
+let target=0, mixV=0;
+function placeKnob(){const b=tg.querySelector('button.on');knob.style.width=b.offsetWidth+'px';knob.style.transform=`translateX(${b.offsetLeft-4}px)`;}
+function setTheme(v,instant){
+  target=v==='ny'?1:0; if(instant) mixV=target;
+  root.classList.toggle('ny',target===1);
+  tg.querySelectorAll('button').forEach(b=>{const on=b.dataset.v===v;b.classList.toggle('on',on);b.setAttribute('aria-pressed',on)});
+  placeKnob(); try{localStorage.setItem('hvoya-theme',v)}catch(e){}
+}
+tg.addEventListener('click',e=>{const b=e.target.closest('button');if(b)setTheme(b.dataset.v)});
+let saved=null; try{saved=localStorage.getItem('hvoya-theme')}catch(e){}
+if(REC) saved='day';
+setTheme(saved||'day',true);
+if(document.fonts) document.fonts.ready.then(placeKnob);
+
+// даты по умолчанию
+const d=new Date(), iso=x=>x.toISOString().slice(0,10), add=(x,n)=>{const y=new Date(x);y.setDate(y.getDate()+n);return y};
+['d1','f1'].forEach(id=>document.getElementById(id).value=iso(add(d,7)));
+['d2','f2'].forEach(id=>document.getElementById(id).value=iso(add(d,9)));
+document.querySelectorAll('input[type=date]').forEach(inp=>{
+  const w=document.createElement('span');w.className='dwrap';inp.parentNode.insertBefore(w,inp);w.appendChild(inp);
+  const v=document.createElement('span');v.className='dv';w.appendChild(v);
+  const upd=()=>{const x=inp.valueAsDate;v.textContent=x?x.toLocaleDateString('ru-RU',{day:'numeric',month:'long',weekday:'short',timeZone:'UTC'}):'Выберите дату'};
+  inp.addEventListener('change',upd);inp.addEventListener('click',()=>{try{inp.showPicker()}catch(e){}});upd();
+});
+
+// ---------- ввод ----------
+const mouse=new THREE.Vector2(), mouseS=new THREE.Vector2();
+addEventListener('pointermove',e=>{if(REC)return;mouse.set(e.clientX/innerWidth*2-1,-(e.clientY/innerHeight*2-1))},{passive:true});
+let gyro=false;
+addEventListener('deviceorientation',e=>{if(e.gamma==null)return;gyro=true;mouse.set(Math.max(-1,Math.min(1,e.gamma/25)),Math.max(-1,Math.min(1,(e.beta-45)/25)))},{passive:true});
+const htxt=document.getElementById('htxt'), bk=document.getElementById('bk');
+
+function resize(){
+  const w=innerWidth,h=innerHeight;renderer.setSize(w,h,false);U.uRes.value.set(w,h);cam.aspect=w/h;cam.updateProjectionMatrix();
+  [snow,flakesBig,dust].forEach(f=>f.material.uniforms.uH.value=h);placeKnob();
+}
+addEventListener('resize',resize);resize();
+
+// ---------- кадр ----------
+let clock=0, last=performance.now(), scrollS=0;
+function frame(dt){
+  clock+=dt;
+  const e=Math.min(1,dt*1.9); mixV+=(target-mixV)*e; if(Math.abs(target-mixV)<.002)mixV=target;
+  const mx=mixV*mixV*(3-2*mixV);
+  U.uMix.value=mx; U.uTime.value=clock;
+  U.uIntro.value=Math.max(0,1-clock/2.4)**2;
+  if(!gyro && !REC && clock>0 && mouse.lengthSq()===0){mouse.set(Math.sin(clock*.25)*.35,Math.sin(clock*.17)*.15)}
+  mouseS.lerp(mouse,Math.min(1,dt*3.2)); U.uMouse.value.copy(mouseS);
+  const sc=Math.min(1,scrollY/innerHeight); scrollS+=(sc-scrollS)*Math.min(1,dt*6); U.uScroll.value=scrollS;
+  htxt.style.transform=`translateY(${-scrollS*60}px)`;htxt.style.opacity=1-scrollS*1.4;
+  bk.style.opacity=1-scrollS*1.6;
+  wind=Math.sin(clock*.23)*.6+.3;
+  stepField(snow,dt,clock,1.1,.35); stepField(flakesBig,dt,clock,1.6,.5); stepField(dust,dt,clock,-.12,.25);
+  snow.material.uniforms.uOp.value=Math.max(0,(mx-.15)/.85)*.95;
+  flakesBig.material.uniforms.uOp.value=Math.max(0,(mx-.3)/.7)*.55;
+  dust.material.uniforms.uOp.value=(1-mx)*.8;
+  cam.position.x=mouseS.x*1.6; cam.position.y=mouseS.y*.9; cam.position.z=12-scrollS*7; cam.lookAt(mouseS.x*.4,mouseS.y*.2,-20);
+  renderer.clear(); renderer.render(quadScene,quadCam); renderer.clearDepth(); renderer.render(scene,cam);
+}
+function loop(now){const dt=Math.min(.05,(now-last)/1000);last=now;frame(dt);requestAnimationFrame(loop)}
+if(!REC) requestAnimationFrame(loop);
+
+// управление для записи ролика
+window.__rec={snow,dust,quadScene,renderer,frame,setMouse:(x,y)=>mouse.set(x,y),setTheme,ready:()=>[U.tL,U.tZ,U.dL,U.dZ].every(u=>u.value.image&&u.value.image.complete)};
+</script>
+</body>
+</html>

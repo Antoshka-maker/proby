@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Колесо призов. Кофейня «Зерно»</title>
+<link rel="stylesheet" href="common.css">
+<style>
+  .stage{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:32px;align-items:center}
+  .wheel{position:relative;width:min(560px,92vw);aspect-ratio:1;margin:0 auto}
+  .wheel canvas{width:100%;height:100%;display:block;filter:drop-shadow(0 14px 30px rgba(80,40,10,.25))}
+  .arrow{position:absolute;top:-6px;left:50%;transform:translateX(-50%);width:0;height:0;border-left:22px solid transparent;border-right:22px solid transparent;border-top:44px solid var(--ink);z-index:2}
+  .hub{position:absolute;inset:0;margin:auto;width:92px;height:92px;border-radius:50%;background:var(--card);border:6px solid var(--ink);display:grid;place-items:center;font-weight:800;font-size:15px}
+  .side{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:24px}
+  .side h3{margin:0 0 12px;font-size:18px}
+  .side ul{list-style:none;margin:0 0 20px;padding:0;display:grid;gap:8px}
+  .side li{display:flex;align-items:center;gap:10px;font-size:15px}
+  .side li b{width:14px;height:14px;border-radius:4px;flex:none}
+  .tries{color:var(--dim);font-size:14px;margin-top:12px}
+  @media(max-width:820px){.stage{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="top"><div class="logo"><i>З</i>Кофейня «Зерно»</div><div class="pill" id="tr">Попыток: 1</div></div>
+<div class="wrap">
+  <h1>Крутите колесо и заберите подарок</h1>
+  <p class="sub">Покажите код бариста, он действует до конца недели</p>
+  <div class="stage">
+    <div class="wheel"><div class="arrow"></div><canvas id="c" width="1120" height="1120"></canvas><div class="hub">КРУТИ</div></div>
+    <div class="side">
+      <h3>Что можно выиграть</h3>
+      <ul id="legend"></ul>
+      <button class="btn" id="spin" style="width:100%">Крутить колесо</button>
+      <div class="tries">Одна попытка на телефон в день</div>
+    </div>
+  </div>
+</div>
+<div class="modal" id="m"><div class="box"><h2 id="mt"></h2><p id="mp"></p><div class="code" id="mc"></div><br><button class="btn" onclick="m.classList.remove('on')">Понятно</button></div></div>
+<script>
+const prizes=[
+ {t:'Капучино',c:'#b5532a',w:2},{t:'Скидка 10%',c:'#e8a33d',w:5},{t:'Круассан',c:'#6b8f71',w:3},{t:'Скидка 15%',c:'#d9764a',w:3},
+ {t:'Сироп',c:'#8c5a3c',w:5},{t:'Скидка 5%',c:'#c9a46b',w:8},{t:'Двойной кофе',c:'#4e6e8e',w:1},{t:'Печенье',c:'#a3613f',w:5}];
+const cv=document.getElementById('c'),x=cv.getContext('2d'),N=prizes.length,R=540,C=560;
+let ang=0,spinning=false,tries=1;
+function draw(){x.clearRect(0,0,1120,1120);x.save();x.translate(C,C);x.rotate(ang);
+ for(let i=0;i<N;i++){const a0=i*2*Math.PI/N-Math.PI/2-Math.PI/N,a1=a0+2*Math.PI/N;
+  x.beginPath();x.moveTo(0,0);x.arc(0,0,R,a0,a1);x.closePath();x.fillStyle=prizes[i].c;x.fill();x.strokeStyle='#fffaf3';x.lineWidth=8;x.stroke();
+  x.save();x.rotate((a0+a1)/2);x.fillStyle='#fff';x.font='700 44px Inter,Segoe UI,Arial';x.textAlign='right';x.textBaseline='middle';x.fillText(prizes[i].t,R-40,0);x.restore();}
+ x.beginPath();x.arc(0,0,R,0,7);x.lineWidth=18;x.strokeStyle='#2b1d14';x.stroke();
+ for(let i=0;i<N*2;i++){const a=i*Math.PI/N;x.beginPath();x.arc(Math.cos(a)*(R-1),Math.sin(a)*(R-1),9,0,7);x.fillStyle=i%2?'#e8a33d':'#fffaf3';x.fill();}
+ x.restore();}
+function pick(){const s=prizes.reduce((a,p)=>a+p.w,0);let r=Math.random()*s;for(let i=0;i<N;i++){r-=prizes[i].w;if(r<0)return i}return N-1}
+function code(){const A='ABCEHKMPTX23456789';let s='ZRN-';for(let i=0;i<5;i++)s+=A[Math.floor(Math.random()*A.length)];return s}
+function spin(){if(spinning||tries<1)return;spinning=true;tries--;document.getElementById('tr').textContent='Попыток: '+tries;spinBtn.disabled=true;
+ const i=pick(),target=-i*2*Math.PI/N+(Math.random()-.5)*(2*Math.PI/N)*.7,start=ang,full=Math.PI*2*6;
+ const end=start+full+((target-start)%(2*Math.PI)+2*Math.PI)%(2*Math.PI),t0=performance.now(),D=4800;
+ (function f(t){const k=Math.min(1,(t-t0)/D),e=1-Math.pow(1-k,4);ang=start+(end-start)*e;draw();if(k<1)requestAnimationFrame(f);else done(i)})(t0);}
+function done(i){spinning=false;mt.textContent='Ваш приз: '+prizes[i].t;mp.textContent='Код сохранён на этом телефоне. Назовите его на кассе';mc.textContent=code();m.classList.add('on');try{localStorage.setItem('zerno-prize',prizes[i].t)}catch(e){}}
+const spinBtn=document.getElementById('spin');spinBtn.onclick=spin;document.querySelector('.hub').onclick=spin;
+document.getElementById('legend').innerHTML=prizes.map(p=>`<li><b style="background:${p.c}"></b>${p.t}</li>`).join('');
+draw();
+</script>
+</body>
+</html>

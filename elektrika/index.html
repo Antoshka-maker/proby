@@ -1,0 +1,44 @@
+<!doctype html><html lang="ru"><head><meta charset="utf-8"><title>Сборщик заказов электрики</title>
+<style>
+body{margin:0;font:15px/1.4 "Segoe UI",Inter,Arial,sans-serif;background:#f3f4f6;color:#1d2430}
+.w{max-width:1180px;margin:0 auto;padding:22px}
+h1{font-size:22px;margin:0 0 16px}h2{font-size:15px;margin:0 0 10px;text-transform:uppercase;letter-spacing:.06em;color:#667085}
+.g{display:grid;grid-template-columns:400px 1fr;gap:18px}
+.c{background:#fff;border-radius:12px;padding:18px;box-shadow:0 1px 2px rgba(0,0,0,.06)}
+.col{font-weight:600;margin:12px 0 6px;display:flex;align-items:center;gap:8px}
+.dot{width:14px;height:14px;border-radius:50%;border:1px solid #c5c9d2}
+.r{display:flex;justify-content:space-between;align-items:center;padding:4px 0}
+input{width:70px;padding:6px 8px;border:1px solid #cfd4dc;border-radius:8px;font:inherit;text-align:right}
+table{width:100%;border-collapse:collapse}th,td{padding:7px 8px;text-align:left;border-bottom:1px solid #eceef2}
+th{font-size:12px;color:#667085;font-weight:600}td.n,th.n{text-align:right}
+.art{font-family:Consolas,monospace;color:#175cd3}
+.sum{display:flex;gap:26px;margin-top:14px;font-weight:600}
+.warn{margin-top:12px;background:#fff6e5;border:1px solid #f5c26b;border-radius:10px;padding:10px 12px}
+.ok{margin-top:12px;background:#e9f8ef;border:1px solid #8fd3a8;border-radius:10px;padding:10px 12px}
+.ex{color:#b54708;font-weight:600}
+</style></head><body><div class="w"><h1>Сборщик заказов электрики <span style="font-weight:400;color:#667085;font-size:15px">прототип, работает как локальный файл</span></h1>
+<div class="g"><div class="c"><h2>Заказ</h2><div id="form"></div></div>
+<div class="c"><h2>Подбор артикулов</h2><table><thead><tr><th>Артикул</th><th>Позиция</th><th>Цвет</th><th class="n">В упак.</th><th class="n">Упаковок</th><th class="n">Штук</th><th class="n">Сумма, ₽</th></tr></thead><tbody id="out"></tbody></table>
+<div class="sum" id="sum"></div><div id="msg"></div></div></div></div>
+<script src="baza.js"></script>
+<script>
+// Стартовый пример заказа: позиция|цвет -> количество
+var need={'Розетка с заземлением|Белый':17,'Выключатель 1-кл.|Белый':7,'Рамка 1 пост|Белый':12,'Рамка 2 поста|Белый':6,
+'Розетка с заземлением|Графит':8,'Выключатель 1-кл.|Графит':3,'Рамка 1 пост|Графит':5,'Рамка 2 поста|Графит':3};
+var dots={'Белый':'#fff','Графит':'#4a4f57'};
+// Подбор упаковок для одной позиции: сначала минимум лишних штук, при равенстве минимум цены.
+// Динамическое программирование по числу штук: best[q] = минимальная цена набрать ровно q.
+function pick(items,n){var max=n+Math.max.apply(0,items.map(function(i){return i.pack})),best=[0],how=[null];
+ for(var q=1;q<=max;q++){best[q]=Infinity;items.forEach(function(it){if(q>=it.pack&&best[q-it.pack]+it.price<best[q]){best[q]=best[q-it.pack]+it.price;how[q]=it}})}
+ for(var q=n;q<=max;q++)if(best[q]<Infinity){var res={},k=q;while(k>0){var it=how[k];res[it.art]=(res[it.art]||0)+1;k-=it.pack}return{packs:res,total:q,extra:q-n,cost:best[q]}}}
+function draw(){var rows='',sum=0,extra=[],slots=0,mods=0;
+ Object.keys(need).forEach(function(k){var n=need[k];if(!n)return;var p=k.split('|'),items=BAZA.filter(function(b){return b.pos==p[0]&&b.color==p[1]}),r=pick(items,n);
+  if(/Рамка 1/.test(k))slots+=n;else if(/Рамка 2/.test(k))slots+=2*n;else mods+=n;
+  items.forEach(function(it){var c=r.packs[it.art];if(c){rows+='<tr><td class="art">'+it.art+'</td><td>'+it.pos+'</td><td>'+it.color+'</td><td class="n">'+it.pack+'</td><td class="n">'+c+'</td><td class="n">'+c*it.pack+'</td><td class="n">'+(c*it.price).toLocaleString('ru')+'</td></tr>'}});
+  sum+=r.cost;if(r.extra)extra.push(p[0]+', '+p[1].toLowerCase()+': +'+r.extra+' шт')});
+ out.innerHTML=rows;document.getElementById('sum').innerHTML='<span>Итого: '+sum.toLocaleString('ru')+' ₽</span><span class="ex">Лишних штук: '+(extra.length?extra.join('; '):'нет')+'</span>';
+ msg.innerHTML=slots>mods?'<div class="warn">В рамках остаётся незаполненных постов: '+(slots-mods)+'</div>':slots<mods?'<div class="warn">Не поместилось в рамки модулей: '+(mods-slots)+'</div>':'<div class="ok">Все модули размещены в рамках, пустых постов нет</div>'}
+var f='',last='';Object.keys(need).sort(function(a,b){return a.split('|')[1]<b.split('|')[1]?-1:1}).forEach(function(k){var p=k.split('|');if(p[1]!=last){f+='<div class="col"><span class="dot" style="background:'+dots[p[1]]+'"></span>'+p[1]+'</div>';last=p[1]}
+ f+='<div class="r"><span>'+p[0]+'</span><input type="number" min="0" value="'+need[k]+'" data-k="'+k+'"></div>'});
+form.innerHTML=f;form.addEventListener('input',function(e){need[e.target.dataset.k]=+e.target.value||0;draw()});draw();
+</script></body></html>
