@@ -1,0 +1,648 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="theme-color" content="#12122a">
+<title>Afisha Samarqand</title>
+<style>
+:root{
+  --bg:#f1f0eb; --card:#fff; --card2:#e9e8f1; --text:#1b1b2f; --muted:#4f5170; --line:rgba(27,27,47,.12);
+  --accent:#f2bd35; --on-accent:#1a1a2e; --ink:#a56a00; --shadow:0 2px 10px rgba(27,27,47,.10);
+  --tab-h:62px; --green:#17825a; --green-bg:rgba(23,130,90,.12); --orange:#8a4300; --orange-bg:rgba(200,110,20,.16);
+  color-scheme:light;
+}
+:root[data-scheme="dark"]{
+  --bg:#12122a; --card:#1d1e3f; --card2:#2a2b55; --text:#f4f4fb; --muted:#b6b8de; --line:rgba(255,255,255,.08);
+  --accent:#f6c445; --on-accent:#1a1a2e; --ink:#f6c445; --green:#4fd69a; --green-bg:rgba(60,190,120,.18); --orange:#ffa14d; --orange-bg:rgba(255,150,60,.2); --shadow:0 6px 18px rgba(0,0,0,.28);
+  color-scheme:dark;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--text);font:15px/1.35 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif}
+body{min-height:100vh;display:flex;justify-content:center}
+button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}
+#app{width:100%;max-width:480px;min-height:100vh;position:relative;padding-bottom:calc(var(--tab-h) + env(safe-area-inset-bottom) + 12px)}
+@media (min-width:600px){
+  body{background:#0b0b1b}
+  :root:not([data-scheme="dark"]) body{background:#d9d8e2}
+  #app{background:var(--bg);box-shadow:0 0 60px rgba(0,0,0,.35)}
+}
+
+/* шапка */
+.top{display:flex;align-items:center;gap:12px;padding:14px 16px 8px}
+.logo{width:40px;height:40px;border-radius:12px;flex:none;background:linear-gradient(135deg,#f6c445,#e0852b);display:grid;place-items:center}
+.logo svg{width:24px;height:24px}
+.ttl{flex:1;min-width:0}
+.ttl b{display:block;font-size:17px;letter-spacing:.2px}
+.ttl span{display:block;font-size:12.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.icon-btn{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;background:var(--card);box-shadow:var(--shadow)}
+.icon-btn svg{width:20px;height:20px;stroke:var(--text);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+
+/* поиск и чипы */
+.search{margin:6px 16px 10px;position:relative}
+.search input{width:100%;height:42px;border-radius:13px;border:1px solid var(--line);background:var(--card);color:var(--text);padding:0 40px 0 40px;font:inherit;outline:none}
+.search input:focus{border-color:var(--accent)}
+.search input::placeholder{color:var(--muted);opacity:1}
+.search svg{position:absolute;left:12px;top:11px;width:20px;height:20px;stroke:var(--muted);fill:none;stroke-width:1.8;stroke-linecap:round}
+.search .clr{position:absolute;right:6px;top:5px;width:32px;height:32px;display:none;place-items:center;color:var(--muted);font-size:20px}
+.search.has .clr{display:grid}
+.row{display:flex;gap:8px;overflow-x:auto;padding:0 16px 10px;scrollbar-width:none;-webkit-mask-image:linear-gradient(90deg,#000 calc(100% - 26px),transparent);mask-image:linear-gradient(90deg,#000 calc(100% - 26px),transparent)}
+.row::after{content:"";flex:0 0 16px}
+.row::-webkit-scrollbar{display:none}
+.chip{flex:none;height:34px;padding:0 14px;border-radius:17px;background:var(--card);border:1px solid var(--line);font-size:14px;white-space:nowrap;display:inline-flex;align-items:center;gap:6px}
+.chip[aria-pressed="true"]{background:var(--accent);color:var(--on-accent);border-color:var(--accent);font-weight:600}
+.day{flex:none;width:50px;height:56px;border-radius:14px;background:var(--card);border:1px solid var(--line);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;position:relative}
+.day small{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.4px}
+.day b{font-size:17px}
+.day[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.day[aria-pressed="true"] small{color:var(--on-accent);opacity:.75}
+.day i{position:absolute;bottom:5px;width:4px;height:4px;border-radius:50%;background:var(--ink)}
+.day[aria-pressed="true"] i{background:var(--on-accent)}
+.day.we b{color:var(--ink)}
+.day.we[aria-pressed="true"] b{color:var(--on-accent)}
+.lbl{padding:2px 16px 6px;font-size:12px;letter-spacing:.8px;text-transform:uppercase;color:var(--muted)}
+
+/* список */
+.dh{padding:14px 18px 8px;font-size:13px;color:var(--muted);font-weight:600;letter-spacing:.2px}
+.dh b{color:var(--text)}
+.card{border:1px solid var(--line);position:relative;display:flex;gap:12px;margin:0 16px 10px;padding:10px;border-radius:16px;background:var(--card);box-shadow:var(--shadow);text-align:left;width:calc(100% - 32px);align-items:stretch}
+.card:active{transform:scale(.99)}
+.thumb{width:72px;height:72px;border-radius:12px;flex:none;background-size:cover;background-position:center}
+.cb{flex:1;min-width:0;display:flex;flex-direction:column}
+.cat{font-size:11.5px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--ink)}
+.cname{font-size:15.5px;font-weight:650;line-height:1.22;margin:2px 0 3px;padding-right:62px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.meta{font-size:13.5px;color:var(--muted);margin-top:auto;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.price{position:absolute;right:12px;top:10px;font-size:14px;font-weight:700;color:var(--ink);white-space:nowrap}
+.price.free{font-size:12px;letter-spacing:.4px;text-transform:uppercase;background:var(--green-bg);color:var(--green);border-radius:8px;padding:2px 7px;top:9px}
+.heart{position:absolute;right:6px;bottom:4px;width:38px;height:38px;display:grid;place-items:center}
+.heart svg{width:22px;height:22px;fill:none;stroke:var(--muted);stroke-width:1.8;stroke-linejoin:round;transition:transform .15s}
+.heart[aria-pressed="true"] svg{fill:#ff5d73;stroke:#ff5d73;transform:scale(1.12)}
+.tag{display:inline-block;font-size:11px;font-weight:600;border-radius:7px;padding:1px 6px;margin-left:6px;vertical-align:1px;background:var(--card2);color:var(--muted);text-transform:none;letter-spacing:0}
+.tag.moved{background:var(--orange-bg);color:var(--orange)}
+.empty{text-align:center;color:var(--muted);padding:56px 30px}
+.empty b{display:block;color:var(--text);font-size:17px;margin-bottom:6px}
+.note{margin:18px 16px 0;font-size:12px;color:var(--muted);text-align:center}
+
+/* календарь */
+.cal{margin:6px 16px 4px;background:var(--card);border-radius:18px;padding:12px 10px 10px;box-shadow:var(--shadow)}
+.cal-h{display:flex;align-items:center;justify-content:space-between;padding:0 4px 8px}
+.cal-h b{font-size:16px;text-transform:capitalize}
+.cal-h button{width:34px;height:34px;border-radius:10px;background:var(--card2);display:grid;place-items:center}
+.cal-h button[disabled]{opacity:.3}
+.cal-h svg{width:18px;height:18px;stroke:var(--text);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.legend{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;padding:10px 4px 2px;font-size:12px;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:4px}
+.legend .d{width:5px;height:5px;border-radius:50%;background:var(--ink);margin:0 3.5px}
+.legend .r{box-shadow:inset 0 0 0 1.5px var(--accent)}
+.legend .f{background:var(--accent);border-radius:4px}
+.grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;text-align:center}
+.grid .w{font-size:12px;color:var(--muted);padding:4px 0;text-transform:uppercase}
+.grid button{height:44px;border-radius:12px;position:relative;font-size:15px;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.grid button[disabled]{color:var(--muted);opacity:.35;cursor:default}
+.grid button.has i{position:absolute;bottom:6px;width:5px;height:5px;border-radius:50%;background:var(--ink)}
+.grid button.today{box-shadow:inset 0 0 0 1.5px var(--accent)}
+.grid button[aria-pressed="true"]{background:var(--accent);color:var(--on-accent);font-weight:700}
+.grid button[aria-pressed="true"] i{background:var(--on-accent)}
+
+/* нижняя панель */
+.tabs{position:fixed;left:50%;transform:translateX(-50%);bottom:0;width:100%;max-width:480px;height:calc(var(--tab-h) + env(safe-area-inset-bottom));padding-bottom:env(safe-area-inset-bottom);background:var(--card);border-top:1px solid var(--line);display:flex;z-index:20}
+.tabs button{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:11.5px;color:var(--muted);position:relative}
+.tabs svg{width:23px;height:23px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.tabs button[aria-selected="true"]{color:var(--ink);font-weight:600}
+.tabs .cnt{position:absolute;top:5px;left:calc(50% + 6px);min-width:17px;height:17px;border-radius:9px;background:#ff5d73;color:#fff;font-size:10.5px;display:none;place-items:center;padding:0 4px;font-weight:700}
+.tabs .cnt.on{display:grid}
+
+/* карточка события и настройки */
+.sheet{position:fixed;inset:0;z-index:40;display:flex;justify-content:center;pointer-events:none;visibility:hidden}
+.sheet.open{visibility:visible;pointer-events:auto}
+.sheet .bd{position:absolute;inset:0;background:rgba(0,0,0,.5);opacity:0;transition:opacity .25s}
+.sheet.open .bd{opacity:1}
+.sheet .pn{position:relative;width:100%;max-width:480px;height:100%;background:var(--bg);overflow:hidden;transform:translateY(100%);transition:transform .28s cubic-bezier(.2,.8,.2,1)}
+.sheet.open .pn{transform:none}
+.sheet.small .pn{height:auto;max-height:86%;align-self:flex-end;border-radius:22px 22px 0 0;padding:6px 18px calc(22px + env(safe-area-inset-bottom));overflow-y:auto}
+.sc{height:100%;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.sheet.small .pn:before{content:"";display:block;width:40px;height:4px;border-radius:2px;background:var(--line);margin:6px auto 12px;background:var(--muted);opacity:.4}
+.hero{height:196px;background-size:cover;background-position:center;position:relative}
+.hero:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.35),transparent 40%,transparent 60%,var(--bg))}
+.hbtn{position:absolute;top:calc(12px + env(safe-area-inset-top));z-index:2;width:40px;height:40px;border-radius:50%;background:rgba(15,15,35,.55);backdrop-filter:blur(8px);display:grid;place-items:center}
+.hbtn svg{width:21px;height:21px;fill:none;stroke:#fff;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.hbtn.l{left:14px}.hbtn.r{right:14px}.hbtn.r2{right:62px}
+.hbtn[aria-pressed="true"] svg{fill:#ff5d73;stroke:#ff5d73}
+.body{padding:0 18px 140px;margin-top:-26px;position:relative;z-index:1}
+.body h1{font-size:23px;line-height:1.2;margin:6px 0 10px}
+.badges{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+.badge{font-size:12px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;border-radius:9px;padding:4px 9px;background:var(--card2);color:var(--ink)}
+.badge.k{color:var(--text);text-transform:none;letter-spacing:0;font-weight:600}
+.badge.m{background:var(--orange-bg);color:var(--orange);text-transform:none;letter-spacing:0}
+.info{background:var(--card);border-radius:16px;box-shadow:var(--shadow);padding:4px 14px;margin-bottom:14px}
+.ir{display:flex;gap:12px;padding:11px 0;align-items:flex-start}
+.ir+.ir{border-top:1px solid var(--line)}
+.ir svg{width:21px;height:21px;flex:none;margin-top:1px;stroke:var(--ink);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.ir b{display:block;font-size:15px}
+.ir span{display:block;font-size:13px;color:var(--muted)}
+.ir s{text-decoration:none;color:var(--orange);font-size:13px}
+.body p{margin:0 0 14px;font-size:15px;line-height:1.5}
+.map{position:relative;height:170px;border-radius:16px;overflow:hidden;background:var(--card2);margin-bottom:10px;box-shadow:var(--shadow)}
+.map:before{content:"";position:absolute;left:50%;top:50%;width:28px;height:28px;margin:-16px 0 0 -14px;background:var(--ink);opacity:.5;-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 21s7-6.100 7-11.500A7 7 0 0 0 5 9.500C5 14.900 12 21 12 21z'/%3E%3C/svg%3E") center/contain no-repeat;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 21s7-6.100 7-11.500A7 7 0 0 0 5 9.500C5 14.900 12 21 12 21z'/%3E%3C/svg%3E") center/contain no-repeat}
+.map iframe{position:relative;width:100%;height:100%;border:0;display:block}
+:root[data-scheme="dark"] .map.ok iframe{filter:invert(.92) hue-rotate(180deg) saturate(.8)}
+.link{display:flex;align-items:center;justify-content:center;gap:8px;height:42px;border-radius:12px;background:var(--card);box-shadow:var(--shadow);font-weight:600;font-size:14px;width:100%;margin-bottom:8px;text-decoration:none;color:var(--text)}
+.link svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.cta{position:absolute;left:0;right:0;bottom:0;padding:12px 16px calc(12px + env(safe-area-inset-bottom));background:linear-gradient(180deg,transparent,var(--bg) 35%);z-index:3}
+.main{width:100%;height:48px;border-radius:15px;background:var(--accent);color:var(--on-accent);font-weight:700;font-size:16px;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 8px 22px rgba(246,196,69,.28)}
+.sheet h2{margin:2px 0 14px;font-size:19px}
+.set-l{font-size:12px;letter-spacing:.8px;text-transform:uppercase;color:var(--muted);margin:14px 0 8px}
+.seg{display:flex;background:var(--card2);border-radius:13px;padding:3px}
+.seg button{flex:1;height:38px;border-radius:10px;font-size:14px}
+.seg button[aria-pressed="true"]{background:var(--card);box-shadow:var(--shadow);font-weight:700}
+.about{font-size:12.5px;color:var(--muted);margin-top:18px;line-height:1.45}
+.toast{position:fixed;left:50%;bottom:calc(var(--tab-h) + 24px + env(safe-area-inset-bottom));transform:translate(-50%,20px);background:#272846;color:#fff;font-size:13.5px;padding:10px 16px;border-radius:12px;opacity:0;transition:all .25s;z-index:60;pointer-events:none;max-width:90%;text-align:center}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div class="sheet" id="evSheet"><div class="bd" data-close></div><div class="pn" id="evPanel"></div></div>
+<div class="sheet small" id="setSheet"><div class="bd" data-close></div><div class="pn" id="setPanel"></div></div>
+<div class="toast" id="toast"></div>
+<script src="https://telegram.org/js/telegram-web-app.js" async></script>
+<script>
+/* Демо-данные: события и места вымышленные */
+const VENUES = {
+  phil:   { ru:'Филармония', uz:'Filarmoniya', aru:'ул. Мирзо Улугбека', auz:"Mirzo Ulugʻbek koʻchasi", lat:39.6470, lng:66.9590 },
+  drama:  { ru:'Драматический театр', uz:'Drama teatri', aru:'ул. Навои', auz:"Navoiy koʻchasi", lat:39.6530, lng:66.9610 },
+  puppet: { ru:'Кукольный театр', uz:"Qoʻgʻirchoq teatri", aru:'центр города', auz:'shahar markazi', lat:39.6560, lng:66.9680 },
+  museum: { ru:'Музей «Афрасиаб»', uz:"«Afrosiyob» muzeyi", aru:'Афрасиабское городище', auz:'Afrosiyob shahar xarobasi', lat:39.6713, lng:66.9895 },
+  craft:  { ru:'Центр ремёсел', uz:'Hunarmandlar markazi', aru:'старый город', auz:'eski shahar', lat:39.6500, lng:66.9720 },
+  park:   { ru:'Центральный парк', uz:"Markaziy bog'", aru:'ул. Университетский бульвар', auz:'Universitet xiyoboni', lat:39.6620, lng:66.9540 },
+  club:   { ru:'Клуб «Сиёб»', uz:"«Siyob» klubi", aru:'район Сиёб', auz:'Siyob dahasi', lat:39.6610, lng:66.9810 },
+  sport:  { ru:'Городской спорткомплекс', uz:'Shahar sport majmuasi', aru:'южная часть города', auz:'shaharning janubiy qismi', lat:39.6420, lng:66.9450 },
+  reg:    { ru:'Площадь Регистан', uz:'Registon maydoni', aru:'Регистан', auz:'Registon', lat:39.6547, lng:66.9758 }
+};
+
+/* d — через сколько дней от сегодняшнего; t — время начала */
+const EVENTS = [
+ { id:1,  cat:'concert',  d:0,  t:'19:00', v:'phil',   price:150000, kids:false,
+   ru:{ title:'Вечер шашмакома', desc:'Ансамбль исполнит классические макомы в сопровождении дутара и тамбура. Около двух часов живого звука.' },
+   uz:{ title:'Shashmaqom oqshomi', desc:"Ansambl dutor va tanbur joʻrligida klassik maqomlarni ijro etadi. Taxminan ikki soatlik jonli musiqa." } },
+ { id:2,  cat:'standup',  d:0,  t:'20:00', v:'club',   price:80000, kids:false, age:'16+',
+   ru:{ title:'Стендап: Самарканд шутит', desc:'Пять комиков, новые шутки про базар, маршрутки и тёщ.' },
+   uz:{ title:'Stend-ap: Samarqand kuladi', desc:"Beshta komik: bozor, marshrutka va qaynona haqida yangi hazillar." } },
+ { id:3,  cat:'theatre',  d:1,  t:'18:30', v:'drama',  price:60000, kids:false,
+   ru:{ title:'Спектакль «Тахир и Зухра»', desc:'Классическая история любви в новой постановке. Идёт на узбекском, русские субтитры на экране.' },
+   uz:{ title:"«Tohir va Zuhra» spektakli", desc:"Mashhur sevgi dostoni yangi talqinda. Oʻzbek tilida, rus tilidagi subtitrlar bilan." } },
+ { id:4,  cat:'theatre',  d:1,  t:'11:00', v:'puppet', price:40000, kids:true, age:'4+',
+   ru:{ title:'Кукольный театр: «Золотой ключик»', desc:'Сказка для детей от 4 лет, 50 минут без антракта.' },
+   uz:{ title:"Qoʻgʻirchoq teatri: «Oltin kalitcha»", desc:"4 yoshdan oshgan bolalar uchun ertak, 50 daqiqa, tanaffussiz." } },
+ { id:7,  cat:'festival', d:1,  t:'11:00', v:'reg',    price:0, kids:true,
+   ru:{ title:'Ярмарка выходного дня', desc:'Ремесленники, сладости, мастер-классы для детей и живая музыка.' },
+   uz:{ title:"Dam olish kunlari yarmarkasi", desc:"Hunarmandlar, shirinliklar, bolalar uchun mahorat darslari va jonli musiqa." } },
+ { id:5,  cat:'expo',     d:2,  t:'10:00', v:'museum', price:0, kids:true,
+   ru:{ title:'Выставка «Шёлковый путь в миниатюре»', desc:'Книжная миниатюра и ткани. Вход свободный, экскурсия по записи.' },
+   uz:{ title:"«Buyuk ipak yoʻli miniatyurada» koʻrgazmasi", desc:"Kitob miniatyuralari va matolar. Kirish bepul, ekskursiya oldindan yozilish bilan." } },
+ { id:6,  cat:'workshop', d:2,  t:'12:00', v:'craft',  price:70000, kids:true, age:'8+', weekly:true,
+   ru:{ title:'Мастер-класс по самаркандской бумаге', desc:'Сделаем лист бумаги из тутовой коры своими руками. Материалы включены в цену.' },
+   uz:{ title:"Samarqand qogʻozi: mahorat darsi", desc:"Tut poʻstlogʻidan oʻz qoʻlingiz bilan qogʻoz yasaymiz. Materiallar narxga kiritilgan." } },
+ { id:8,  cat:'concert',  d:3,  t:'19:00', v:'phil',   price:200000, kids:false,
+   ru:{ title:'Симфонический оркестр: вечер классики', desc:'Чайковский, Бородин, Хачатурян. Дирижёр — приглашённый гость из Ташкента.' },
+   uz:{ title:"Simfonik orkestr: klassika oqshomi", desc:"Chaykovskiy, Borodin, Xachaturyan. Dirijyor — Toshkentdan taklif etilgan mehmon." } },
+ { id:9,  cat:'festival', d:4,  t:'14:00', v:'park',   price:0, kids:true,
+   ru:{ title:'Фестиваль уличной еды Samarqand Taste', desc:'Тридцать точек: плов, самса, десерты и новые вкусы города.' },
+   uz:{ title:"Samarqand Taste koʻcha taomlari festivali", desc:"Oʻttizta nuqta: osh, somsa, shirinliklar va shaharning yangi ta'mlari." } },
+ { id:10, cat:'concert',  d:5,  t:'20:00', v:'club',   price:120000, kids:false, age:'16+',
+   ru:{ title:'Джаз-вечер в «Сиёбе»', desc:'Квартет и гость из Бухары. Свободная рассадка, бар работает.' },
+   uz:{ title:"«Siyob»da jazz oqshomi", desc:"Kvartet va Buxorodan mehmon. Erkin oʻrindiqlar, bar ishlaydi." } },
+ { id:11, cat:'sport',    d:6,  t:'17:00', v:'sport',  price:0, kids:true,
+   ru:{ title:'Открытый турнир по шахматам', desc:'Регистрация на месте с 16:00, партии по рапиду. Играть могут все возрасты.' },
+   uz:{ title:"Shaxmat boʻyicha ochiq turnir", desc:"Roʻyxatga olish joyida soat 16:00 dan, rapid partiyalar. Barcha yoshdagilar qatnashishi mumkin." } },
+ { id:12, cat:'standup',  d:6,  t:'19:30', v:'club',   price:90000, kids:false, age:'16+', moved:{ d:5, t:'19:00' },
+   ru:{ title:'Вечер женского стендапа', desc:'Четыре участницы и ведущая. Билеты, купленные на прежнюю дату, действуют.' },
+   uz:{ title:"Ayollar stend-ap kechasi", desc:"Toʻrt ishtirokchi va boshlovchi. Oldingi sanaga olingan chiptalar amal qiladi." } },
+ { id:13, cat:'workshop', d:7,  t:'15:00', v:'museum', price:50000, kids:true, age:'7+',
+   ru:{ title:'Детский квест «Тайны обсерватории Улугбека»', desc:'Команды по четыре человека ищут подсказки по залам. Продолжительность 90 минут.' },
+   uz:{ title:"Bolalar kvesti «Ulugʻbek rasadxonasi sirlari»", desc:"Toʻrt kishilik jamoalar zallar boʻylab maslahatlar qidiradi. Davomiyligi 90 daqiqa." } },
+ { id:14, cat:'theatre',  d:8,  t:'18:00', v:'drama',  price:75000, kids:false,
+   ru:{ title:'Комедия «Свадьба по-самаркандски»', desc:'Семейная комедия про подготовку к тою. Идёт на русском и узбекском.' },
+   uz:{ title:"«Samarqandcha toʻy» komediyasi", desc:"Toʻy tayyorgarligi haqida oilaviy komediya. Rus va oʻzbek tillarida." } },
+ { id:15, cat:'workshop', d:9,  t:'16:00', v:'museum', price:15000, kids:false,
+   ru:{ title:'Лекция: Афрасиаб, город под холмом', desc:'Археолог рассказывает о находках последних сезонов. Лекция 60 минут, затем вопросы.' },
+   uz:{ title:"Ma'ruza: Afrosiyob — tepalik ostidagi shahar", desc:"Arxeolog soʻnggi mavsumlardagi topilmalar haqida gapirib beradi. Ma'ruza 60 daqiqa, keyin savollar." } },
+ { id:16, cat:'concert',  d:10, t:'19:00', v:'phil',   price:180000, kids:false,
+   ru:{ title:'Вечер узбекской эстрады', desc:'Хиты разных лет в исполнении солистов и оркестра.' },
+   uz:{ title:"Oʻzbek estrada oqshomi", desc:"Turli yillar qoʻshiqlari solistlar va orkestr ijrosida." } },
+ { id:17, cat:'workshop', d:12, t:'12:00', v:'craft',  price:60000, kids:true, age:'6+',
+   ru:{ title:'Кулинарный мастер-класс: самса для всей семьи', desc:'Тесто, начинка, духовка. Свою самсу уносите с собой.' },
+   uz:{ title:"Oshpazlik mahorat darsi: butun oila uchun somsa", desc:"Xamir, qiyma, tandir. Oʻzingiz yasagan somsani uyga olib ketasiz." } }
+];
+
+</script>
+<script>
+(function(){
+'use strict';
+var tg = null;
+function getTg(){ return (window.Telegram && window.Telegram.WebApp) || null; }
+
+/* ---------- тексты ---------- */
+var I18N = {
+ ru:{ app:'Afisha Samarqand', sub:'События города на русском и узбекском',
+  search:'Найти событие или место', all:'Все', allDates:'Все даты', allCats:'Все жанры', today:'Сегодня', tomorrow:'Завтра', weekend:'Выходные',
+  kids:'С детьми', free:'Бесплатно', freeUp:'Бесплатно', feed:'Афиша', cal:'Календарь', fav:'Избранное',
+  nothing:'Ничего не найдено', nothingSub:'Сбросьте фильтры или выберите другой день', reset:'Сбросить фильтры',
+  noFav:'Пока пусто', noFavSub:'Нажмите на сердечко у события, и оно появится здесь',
+  date:'Дата и время', place:'Место', price:'Цена', buy:'Купить билет у организатора', reg:'Записаться у организатора', openMap:'Открыть на карте',
+  addCal:'Добавить в календарь', share:'Поделиться', settings:'Настройки', lang:'Язык', theme:'Тема',
+  tTg:'Telegram', tLight:'Светлая', tDark:'Тёмная', moved:'Перенесено', was:'Перенесено с', weekly:'Каждую неделю', free2:'Вход свободный',
+  sum:'сум', legDot:'Есть события', legSel:'Выбранный день', shown:'Показано событий:', demo:'Демо-данные: события и места вымышленные.', about:'Прототип афиши города. Данные для примера, ссылки на билеты подключаются организатором.',
+  linkCopied:'Ссылка скопирована', demoLink:'Здесь откроется ссылка организатора', icsDone:'Файл календаря скачан', back:'Назад', close:'Закрыть', fromTo:'от', age:'Возраст' },
+ uz:{ app:'Afisha Samarqand', sub:"Shahar tadbirlari oʻzbek va rus tillarida",
+  search:'Tadbir yoki joy qidirish', all:'Hammasi', allDates:'Barcha sanalar', allCats:'Barcha turlar', today:'Bugun', tomorrow:'Ertaga', weekend:'Dam olish kunlari',
+  kids:'Bolalar bilan', free:'Bepul', freeUp:'Bepul', feed:'Afisha', cal:'Kalendar', fav:'Sevimlilar',
+  nothing:'Hech narsa topilmadi', nothingSub:"Filtrlarni tozalang yoki boshqa kunni tanlang", reset:'Filtrlarni tozalash',
+  noFav:"Hozircha boʻsh", noFavSub:"Tadbirdagi yurakchani bosing, u shu yerda paydo boʻladi",
+  date:'Sana va vaqt', place:'Joy', price:'Narxi', buy:'Chiptani tashkilotchidan olish', reg:"Tashkilotchida roʻyxatdan oʻtish", openMap:'Xaritada ochish',
+  addCal:"Kalendarga qoʻshish", share:'Ulashish', settings:'Sozlamalar', lang:'Til', theme:'Mavzu',
+  tTg:'Telegram', tLight:"Yorugʻ", tDark:"Qorongʻi", moved:"Koʻchirildi", was:"Oldingi sana:", weekly:'Har hafta', free2:'Kirish bepul',
+  sum:"soʻm", legDot:'Tadbirlar bor', legSel:'Tanlangan kun', shown:'Tadbirlar soni:', demo:"Demo-ma'lumotlar: tadbirlar va joylar xayoliy.", about:"Shahar afishasi prototipi. Ma'lumotlar namuna uchun, chipta havolalarini tashkilotchi ulaydi.",
+  linkCopied:'Havola nusxalandi', demoLink:'Bu yerda tashkilotchi havolasi ochiladi', icsDone:'Kalendar fayli yuklandi', back:'Orqaga', close:'Yopish', fromTo:'dan', age:'Yosh' }
+};
+var CATS = {
+ concert:{ ru:'Концерты', uz:'Konsertlar', one:{ru:'Концерт',uz:'Konsert'} },
+ theatre:{ ru:'Театр', uz:'Teatr', one:{ru:'Театр',uz:'Teatr'} },
+ standup:{ ru:'Стендап', uz:'Stend-ap', one:{ru:'Стендап',uz:'Stend-ap'} },
+ expo:{ ru:'Выставки', uz:"Koʻrgazmalar", one:{ru:'Выставка',uz:"Koʻrgazma"} },
+ workshop:{ ru:'Занятия', uz:"Mashgʻulotlar", one:{ru:'Занятие',uz:"Mashgʻulot"} },
+ festival:{ ru:'Фестивали', uz:'Festivallar', one:{ru:'Фестиваль',uz:'Festival'} },
+ sport:{ ru:'Спорт', uz:'Sport', one:{ru:'Спорт',uz:'Sport'} }
+};
+var MON_G = { ru:['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'],
+              uz:['yanvar','fevral','mart','aprel','may','iyun','iyul','avgust','sentabr','oktabr','noyabr','dekabr'] };
+var MON_N = { ru:['январь','февраль','март','апрель','май','июнь','июль','август','сентябрь','октябрь','ноябрь','декабрь'], uz:MON_G.uz };
+var WD_S = { ru:['Вс','Пн','Вт','Ср','Чт','Пт','Сб'], uz:['Ya','Du','Se','Cho','Pa','Ju','Sha'] };
+var WD_L = { ru:['воскресенье','понедельник','вторник','среда','четверг','пятница','суббота'],
+             uz:['yakshanba','dushanba','seshanba','chorshanba','payshanba','juma','shanba'] };
+
+/* ---------- состояние ---------- */
+var S = { lang:'ru', theme:'tg', tab:'feed', date:null, cat:null, kids:false, free:false, q:'', favs:[], calY:0, calM:0 };
+function load(k,def){ try{ var v=localStorage.getItem('afisha.'+k); return v===null?def:JSON.parse(v);}catch(e){return def;} }
+function save(k,v){ try{ localStorage.setItem('afisha.'+k, JSON.stringify(v)); }catch(e){} }
+S.lang = load('lang', null); S.theme = load('theme','tg'); S.favs = load('favs', [3,6]);
+
+var TODAY = new Date(); TODAY.setHours(0,0,0,0);
+function addDays(d,n){ var x=new Date(d); x.setDate(x.getDate()+n); return x; }
+function iso(d){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+EVENTS.forEach(function(e){ e.date = addDays(TODAY, e.d); e.iso = iso(e.date); if(e.moved){ e.moved.date = addDays(TODAY,e.moved.d); } });
+EVENTS.sort(function(a,b){ return a.iso<b.iso?-1:a.iso>b.iso?1:(a.t<b.t?-1:1); });
+S.calY = TODAY.getFullYear(); S.calM = TODAY.getMonth();
+
+function T(k){ return I18N[S.lang][k]; }
+function $(s,r){ return (r||document).querySelector(s); }
+function esc(s){ return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
+function money(n){ return String(n).replace(/\B(?=(\d{3})+(?!\d))/g,' '); }
+function dateLong(d){ return d.getDate()+' '+MON_G[S.lang][d.getMonth()]+', '+WD_L[S.lang][d.getDay()]; }
+function dateShort(d){ return d.getDate()+' '+MON_G[S.lang][d.getMonth()]; }
+function dayLabel(d){
+  var diff = Math.round((d - TODAY)/86400000);
+  var base = dateLong(d);
+  if(diff===0) return '<b>'+T('today')+'</b> · '+base;
+  if(diff===1) return '<b>'+T('tomorrow')+'</b> · '+base;
+  return base;
+}
+function isFav(id){ return S.favs.indexOf(id)>-1; }
+function weekendDates(){
+  var dow = TODAY.getDay(), out=[];
+  if(dow===6){ out=[iso(TODAY), iso(addDays(TODAY,1))]; }
+  else if(dow===0){ out=[iso(TODAY)]; }
+  else { var toSat = 6-dow; out=[iso(addDays(TODAY,toSat)), iso(addDays(TODAY,toSat+1))]; }
+  return out;
+}
+
+/* ---------- обложки (рисуем сами, без внешних картинок) ---------- */
+var PAL = { concert:['#4a1f78','#e2557f'], theatre:['#7d1c3a','#f08a4b'], standup:['#0d5f70','#36c4a1'], expo:['#23367f','#7aa7ff'], workshop:['#8f4a19','#f2b660'], festival:['#1b6b43','#f0d54a'], sport:['#173f86','#4cc9f0'] };
+var GLYPH = {
+ concert:'<path d="M9 18V5.5l11-2.2V16"/><circle cx="6.5" cy="18" r="2.6"/><circle cx="17.5" cy="16" r="2.6"/>',
+ theatre:'<circle cx="12" cy="12" r="8.5"/><path d="M8 14.3q4 4.4 8 0"/><circle cx="9" cy="9.7" r=".9" fill="#fff"/><circle cx="15" cy="9.7" r=".9" fill="#fff"/>',
+ standup:'<rect x="9" y="2.5" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21M8 21h8"/>',
+ expo:'<rect x="3.5" y="4.5" width="17" height="15" rx="1.5"/><path d="M3.5 16l5-5 4 4 3-3 5 4.5"/><circle cx="15.5" cy="9" r="1.3"/>',
+ workshop:'<path d="M9 3h6v3.2c4 2 4.600 6.300 2.600 10.300-.8 1.600-1.600 3.500-5.600 3.500s-4.800-1.900-5.600-3.500C4.400 12.500 5 8.200 9 6.200z"/><path d="M8.600 11h6.800"/>',
+ festival:'<path d="M10 3l1.800 5.200L17 10l-5.200 1.800L10 17l-1.800-5.200L3 10l5.200-1.800z"/><path d="M18 14l.9 2.100L21 17l-2.100.9L18 20l-.9-2.100L15 17l2.100-.9z"/>',
+ sport:'<circle cx="12" cy="12" r="9"/><path d="M12 7.800l3.600 2.600-1.400 4.200H9.800L8.400 10.400zM12 7.800V3M15.600 10.400l4.600-1.500M14.200 14.600l2.800 3.900M9.800 14.600l-2.800 3.900M8.400 10.400L3.800 8.900"/>'
+};
+var coverCache = {};
+function cover(e){
+  if(coverCache[e.id]) return coverCache[e.id];
+  var p = PAL[e.cat], s = e.id*37;
+  function rnd(i){ var x=Math.sin(s+i*12.9898)*43758.5453; return x-Math.floor(x); }
+  var sil='', x=-20;
+  for(var i=0;i<7;i++){
+    var w=44+rnd(i)*34, h=34+rnd(i+9)*46, kind=Math.floor(rnd(i+3)*3);
+    if(kind===0){ sil+='<rect x="'+x+'" y="'+(320-h)+'" width="'+w+'" height="'+h+'"/><path d="M'+x+' '+(320-h)+'q'+(w/2)+' -'+(w*.7)+' '+w+' 0z"/>'; }
+    else if(kind===1){ sil+='<rect x="'+(x+w*.38)+'" y="'+(320-h-26)+'" width="'+(w*.24)+'" height="'+(h+26)+'"/><path d="M'+(x+w*.34)+' '+(320-h-26)+'l'+(w*.16)+' -14 '+(w*.16)+' 14z"/><rect x="'+x+'" y="'+(320-h*.55)+'" width="'+w+'" height="'+(h*.55)+'"/>'; }
+    else { sil+='<rect x="'+x+'" y="'+(320-h*.8)+'" width="'+w+'" height="'+(h*.8)+'"/><path d="M'+(x+w*.1)+' '+(320-h*.8)+'a'+(w*.4)+' '+(w*.4)+' 0 0 1 '+(w*.8)+' 0z"/>'; }
+    x+=w-4;
+  }
+  var svg='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 320" preserveAspectRatio="xMidYMid slice">'+
+   '<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="'+p[0]+'"/><stop offset="1" stop-color="'+p[1]+'"/></linearGradient>'+
+   '<pattern id="s" width="48" height="48" patternUnits="userSpaceOnUse"><path d="M24 5l4.500 14.500L43 24l-14.500 4.500L24 43l-4.500-14.500L5 24l14.500-4.500z" fill="none" stroke="#fff" stroke-width="1.200"/><circle cx="0" cy="0" r="2.500" fill="#fff"/><circle cx="48" cy="0" r="2.500" fill="#fff"/><circle cx="0" cy="48" r="2.500" fill="#fff"/><circle cx="48" cy="48" r="2.500" fill="#fff"/></pattern></defs>'+
+   '<rect width="320" height="320" fill="url(#g)"/><rect width="320" height="320" fill="url(#s)" opacity=".16"/>'+
+   '<circle cx="'+(230+rnd(1)*40)+'" cy="'+(70+rnd(2)*30)+'" r="46" fill="#fff" opacity=".13"/>'+
+   '<g fill="#0c0c20" opacity=".32">'+sil+'</g>'+
+   '<circle cx="160" cy="150" r="66" fill="#fff" opacity=".14"/>'+
+   '<g transform="translate(100 90) scale(5)" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">'+GLYPH[e.cat]+'</g></svg>';
+  var uri = "url('data:image/svg+xml,"+encodeURIComponent(svg).replace(/'/g,'%27').replace(/\(/g,'%28').replace(/\)/g,'%29')+"')";
+  coverCache[e.id] = uri; return uri;
+}
+
+/* ---------- иконки ---------- */
+var IC = {
+ search:'<svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.500-3.500"/></svg>',
+ gear:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.400 15a1.700 1.700 0 0 0 .3 1.800l.1.100a2 2 0 1 1-2.800 2.800l-.1-.1a1.700 1.700 0 0 0-1.800-.3 1.700 1.700 0 0 0-1 1.500V21a2 2 0 1 1-4 0v-.1a1.700 1.700 0 0 0-1.100-1.500 1.700 1.700 0 0 0-1.800.3l-.1.100a2 2 0 1 1-2.800-2.800l.1-.1a1.700 1.700 0 0 0 .3-1.800 1.700 1.700 0 0 0-1.500-1H3a2 2 0 1 1 0-4h.1a1.700 1.700 0 0 0 1.500-1.100 1.700 1.700 0 0 0-.3-1.800l-.1-.1a2 2 0 1 1 2.800-2.800l.1.100a1.700 1.700 0 0 0 1.800.3H9a1.700 1.700 0 0 0 1-1.500V3a2 2 0 1 1 4 0v.1a1.700 1.700 0 0 0 1 1.500 1.700 1.700 0 0 0 1.800-.3l.1-.1a2 2 0 1 1 2.800 2.800l-.1.100a1.700 1.700 0 0 0-.3 1.800V9a1.700 1.700 0 0 0 1.500 1H21a2 2 0 1 1 0 4h-.1a1.700 1.700 0 0 0-1.500 1z"/></svg>',
+ heart:'<svg viewBox="0 0 24 24"><path d="M12 20.500s-7.500-4.600-9.300-9.400C1.500 7.800 3.500 4.500 6.800 4.500c2 0 3.700 1.100 5.200 3 1.500-1.900 3.200-3 5.200-3 3.300 0 5.300 3.300 4.100 6.600-1.800 4.800-9.300 9.400-9.300 9.400z"/></svg>',
+ list:'<svg viewBox="0 0 24 24"><rect x="3.500" y="4" width="17" height="16" rx="3"/><path d="M8 9h8M8 13h8M8 17h5"/></svg>',
+ calendar:'<svg viewBox="0 0 24 24"><rect x="3.500" y="5" width="17" height="15" rx="3"/><path d="M3.500 10h17M8 3v4M16 3v4"/></svg>',
+ back:'<svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg>',
+ next:'<svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg>',
+ close:'<svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>',
+ clock:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>',
+ pin:'<svg viewBox="0 0 24 24"><path d="M12 21s7-6.100 7-11.500A7 7 0 0 0 5 9.500C5 14.900 12 21 12 21z"/><circle cx="12" cy="9.500" r="2.500"/></svg>',
+ tag:'<svg viewBox="0 0 24 24"><path d="M3 12V4.500A1.500 1.500 0 0 1 4.500 3H12l9 9-9 9z"/><circle cx="8" cy="8" r="1.200"/></svg>',
+ share:'<svg viewBox="0 0 24 24"><path d="M12 15V3M7.500 7.500L12 3l4.500 4.500M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/></svg>',
+ ext:'<svg viewBox="0 0 24 24"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg>',
+ plus:'<svg viewBox="0 0 24 24"><rect x="3.500" y="5" width="17" height="15" rx="3"/><path d="M3.500 10h17M12 13v4M10 15h4"/></svg>'
+};
+
+/* ---------- тема ---------- */
+function applyTheme(){
+  var root = document.documentElement, t = getTg(), scheme='dark', tp = (t && t.themeParams) || {};
+  var hasTg = t && Object.keys(tp).length>0;
+  var custom = ['--bg','--card','--card2','--text','--muted','--accent','--on-accent','--ink'];
+  custom.forEach(function(k){ root.style.removeProperty(k); });
+  if(S.theme==='light') scheme='light';
+  else if(S.theme==='dark') scheme='dark';
+  else {
+    if(hasTg){ scheme = t.colorScheme==='light' ? 'light' : 'dark'; }
+    else scheme = (window.matchMedia && matchMedia('(prefers-color-scheme: light)').matches) ? 'light' : 'dark';
+  }
+  root.setAttribute('data-scheme', scheme);
+  if(S.theme==='tg' && hasTg){
+    if(tp.bg_color) root.style.setProperty('--bg', tp.secondary_bg_color || tp.bg_color);
+    if(tp.bg_color) root.style.setProperty('--card', tp.bg_color);
+    if(tp.secondary_bg_color) root.style.setProperty('--card2', tp.secondary_bg_color);
+    if(tp.text_color) root.style.setProperty('--text', tp.text_color);
+    if(tp.hint_color) root.style.setProperty('--muted', tp.hint_color);
+    if(tp.button_color) { root.style.setProperty('--accent', tp.button_color); root.style.setProperty('--on-accent', tp.button_text_color||'#fff'); }
+    if(tp.link_color) root.style.setProperty('--ink', tp.link_color);
+  }
+  var bg = getComputedStyle(root).getPropertyValue('--bg').trim();
+  var meta = document.querySelector('meta[name=theme-color]'); if(meta) meta.setAttribute('content', bg);
+  try{ if(t){ t.setHeaderColor && t.setHeaderColor(bg); t.setBackgroundColor && t.setBackgroundColor(bg); } }catch(e){}
+}
+
+/* ---------- фильтры ---------- */
+function matches(e){
+  if(S.cat && e.cat!==S.cat) return false;
+  if(S.kids && !e.kids) return false;
+  if(S.free && e.price>0) return false;
+  if(S.date){
+    if(S.date==='today' && e.iso!==iso(TODAY)) return false;
+    else if(S.date==='tomorrow' && e.iso!==iso(addDays(TODAY,1))) return false;
+    else if(S.date==='weekend' && weekendDates().indexOf(e.iso)<0) return false;
+    else if(/^\d{4}-/.test(S.date) && e.iso!==S.date) return false;
+  }
+  if(S.q){
+    var q = S.q.toLowerCase(), v = VENUES[e.v], hay = [e.ru.title,e.uz.title,v.ru,v.uz,CATS[e.cat].ru,CATS[e.cat].uz].join(' ').toLowerCase();
+    if(hay.indexOf(q)<0) return false;
+  }
+  return true;
+}
+function priceHtml(e){ return e.price? '<span class="price">'+money(e.price)+' '+T('sum')+'</span>' : '<span class="price free">'+T('freeUp')+'</span>'; }
+
+function cardHtml(e){
+  var tx=e[S.lang], v=VENUES[e.v], tags='';
+  if(e.moved) tags+='<span class="tag moved">'+T('moved')+'</span>';
+  var fav=isFav(e.id);
+  return '<div class="card" role="button" tabindex="0" data-open="'+e.id+'">'+
+    '<div class="thumb" style="background-image:'+cover(e)+'"></div>'+
+    '<div class="cb"><div class="cat">'+CATS[e.cat].one[S.lang]+tags+'</div>'+
+    '<div class="cname">'+esc(tx.title)+'</div>'+
+    '<div class="meta">'+e.t+' · '+esc(v[S.lang])+'</div></div>'+
+    priceHtml(e)+
+    '<button class="heart" aria-label="'+T('fav')+'" aria-pressed="'+fav+'" data-fav="'+e.id+'">'+IC.heart+'</button></div>';
+}
+function listHtml(list){
+  if(!list.length) return '';
+  var out='', cur='';
+  list.forEach(function(e){ if(e.iso!==cur){ cur=e.iso; out+='<div class="dh">'+dayLabel(e.date)+'</div>'; } out+=cardHtml(e); });
+  return out;
+}
+
+/* ---------- экраны ---------- */
+function header(){
+  return '<div class="top"><div class="logo"><svg viewBox="0 0 24 24" fill="#1a1a2e"><path d="M12 2l2.200 6.300L21 12l-6.800 3.700L12 22l-2.200-6.300L3 12l6.800-3.700z"/></svg></div>'+
+   '<div class="ttl"><b>'+T('app')+'</b><span>'+T('sub')+'</span></div>'+
+   '<button class="icon-btn" data-settings aria-label="'+T('settings')+'">'+IC.gear+'</button></div>';
+}
+function filtersHtml(){
+  var h='<div class="search'+(S.q?' has':'')+'">'+IC.search+'<input id="q" type="search" enterkeyhint="search" autocomplete="off" placeholder="'+esc(T('search'))+'" value="'+esc(S.q)+'"><button class="clr" data-clear aria-label="'+T('close')+'">×</button></div>';
+  function chip(k,label,pressed,extra){ return '<button class="chip" aria-pressed="'+pressed+'" '+k+'>'+label+(extra||'')+'</button>'; }
+  h+='<div class="row">'+
+    chip('data-d="all"',T('allDates'), !S.date)+
+    chip('data-d="today"',T('today'), S.date==='today')+
+    chip('data-d="tomorrow"',T('tomorrow'), S.date==='tomorrow')+
+    chip('data-d="weekend"',T('weekend'), S.date==='weekend')+
+    chip('data-k',T('kids'), S.kids)+
+    chip('data-f',T('free'), S.free)+'</div>';
+  var days='';
+  for(var i=0;i<14;i++){
+    var d=addDays(TODAY,i), k=iso(d), has=EVENTS.some(function(e){return e.iso===k;}), we=(d.getDay()===0||d.getDay()===6);
+    days+='<button class="day'+(we?' we':'')+'" aria-pressed="'+(S.date===k)+'" data-day="'+k+'"><small>'+WD_S[S.lang][d.getDay()]+'</small><b>'+d.getDate()+'</b>'+(has?'<i></i>':'')+'</button>';
+  }
+  h+='<div class="row">'+days+'</div>';
+  var cats='<button class="chip" aria-pressed="'+(!S.cat)+'" data-c="">'+T('allCats')+'</button>';
+  Object.keys(CATS).forEach(function(c){ cats+='<button class="chip" aria-pressed="'+(S.cat===c)+'" data-c="'+c+'">'+CATS[c][S.lang]+'</button>'; });
+  h+='<div class="row">'+cats+'</div>';
+  return h;
+}
+function emptyHtml(fav){
+  return '<div class="empty"><b>'+(fav?T('noFav'):T('nothing'))+'</b>'+(fav?T('noFavSub'):T('nothingSub'))+
+    (fav?'':'<br><br><button class="chip" data-reset style="margin:0 auto">'+T('reset')+'</button>')+'</div>';
+}
+function tabsHtml(){
+  function tb(id,ic,label,extra){ return '<button role="tab" aria-selected="'+(S.tab===id)+'" data-tab="'+id+'">'+IC[ic]+label+(extra||'')+'</button>'; }
+  return '<nav class="tabs" role="tablist">'+tb('feed','list',T('feed'))+tb('cal','calendar',T('cal'))+
+    tb('fav','heart',T('fav'),'<span class="cnt'+(S.favs.length?' on':'')+'">'+S.favs.length+'</span>')+'</nav>';
+}
+
+function calHtml(){
+  var y=S.calY, m=S.calM, first=new Date(y,m,1), startDow=(first.getDay()+6)%7, days=new Date(y,m+1,0).getDate();
+  var minM=TODAY.getFullYear()*12+TODAY.getMonth(), curM=y*12+m, lastEv=EVENTS[EVENTS.length-1].date, maxM=lastEv.getFullYear()*12+lastEv.getMonth();
+  var h='<div class="cal"><div class="cal-h"><button data-cm="-1" aria-label="‹" '+(curM<=minM?'disabled':'')+'>'+IC.back+'</button><b>'+MON_N[S.lang][m]+' '+y+'</b><button data-cm="1" aria-label="›" '+(curM>=maxM?'disabled':'')+'>'+IC.next+'</button></div><div class="grid">';
+  var order=[1,2,3,4,5,6,0];
+  order.forEach(function(w){ h+='<div class="w">'+WD_S[S.lang][w]+'</div>'; });
+  for(var i=0;i<startDow;i++) h+='<div></div>';
+  for(var d=1; d<=days; d++){
+    var dt=new Date(y,m,d), k=iso(dt), past=dt<TODAY, has=EVENTS.some(function(e){return e.iso===k&&matchesNoDate(e);});
+    h+='<button '+(past?'disabled ':'')+'class="'+(has?'has ':'')+(k===iso(TODAY)?'today':'')+'" aria-pressed="'+(S.date===k)+'" data-cd="'+k+'">'+d+(has?'<i></i>':'')+'</button>';
+  }
+  return h+'</div><div class="legend"><span><i class="d"></i>'+T('legDot')+'</span><span><i class="r"></i>'+T('today')+'</span><span><i class="f"></i>'+T('legSel')+'</span></div></div>';
+}
+function matchesNoDate(e){ var s=S.date; S.date=null; var r=matches(e); S.date=s; return r; }
+
+function render(){
+  var app=$('#app'), html=header(), list;
+  if(S.tab==='feed'){
+    list = EVENTS.filter(matches);
+    html+=filtersHtml()+(list.length?listHtml(list):emptyHtml(false));
+    if(list.length) html+='<div class="note">'+T('demo')+'</div>';
+  } else if(S.tab==='cal'){
+    html+=calHtml();
+    list = EVENTS.filter(function(e){ return S.date? e.iso===S.date : false; });
+    if(S.date){ html+= list.length? listHtml(list) : '<div class="empty"><b>'+T('nothing')+'</b>'+T('nothingSub')+'</div>'; }
+    else { list = EVENTS.filter(function(e){ return e.date.getMonth()===S.calM && e.date.getFullYear()===S.calY; }); html+=listHtml(list); }
+  } else {
+    list = EVENTS.filter(function(e){ return isFav(e.id); });
+    html+= list.length? '<div class="lbl" style="padding-top:8px">'+T('fav')+' · '+list.length+'</div>'+listHtml(list) : emptyHtml(true);
+  }
+  var scrollY = window.scrollY, keepFocus = document.activeElement && document.activeElement.id==='q', pos = keepFocus? document.activeElement.selectionStart : 0;
+  var rowScroll = Array.prototype.map.call(app.querySelectorAll('.row'), function(r){ return r.scrollLeft; });
+  app.innerHTML = html + tabsHtml();
+  Array.prototype.forEach.call(app.querySelectorAll('.row'), function(r,i){ if(rowScroll[i]) r.scrollLeft=rowScroll[i]; });
+  if(keepFocus){ var q=$('#q'); q.focus(); try{ q.setSelectionRange(pos,pos);}catch(e){} }
+  window.scrollTo(0, scrollY);
+}
+
+/* ---------- карточка события ---------- */
+var openId=null;
+function openEvent(id, fromHash){
+  var e = EVENTS.filter(function(x){return x.id===id;})[0]; if(!e) return;
+  openId=id;
+  var tx=e[S.lang], v=VENUES[e.v], fav=isFav(id), cta = e.price? T('buy') : T('reg');
+  var when = dateLong(e.date)+', '+e.t;
+  var was = e.moved? '<span><s>'+T('was')+' '+dateShort(e.moved.date)+', '+e.moved.t+'</s></span>' : '';
+  var badges='<span class="badge">'+CATS[e.cat].one[S.lang]+'</span>';
+  if(e.kids) badges+='<span class="badge k">'+T('kids')+(e.age?' · '+e.age:'')+'</span>';
+  else if(e.age) badges+='<span class="badge k">'+e.age+'</span>';
+  if(e.weekly) badges+='<span class="badge k">↻ '+T('weekly')+'</span>';
+  if(e.moved) badges+='<span class="badge m">'+T('moved')+'</span>';
+  var priceLine = e.price? '<b>'+money(e.price)+' '+T('sum')+'</b>' : '<b>'+T('freeUp')+'</b><span>'+T('free2')+'</span>';
+  var bbox=[v.lng-0.005, v.lat-0.0025, v.lng+0.005, v.lat+0.0025].join(',');
+  var mapSrc='https://www.openstreetmap.org/export/embed.html?bbox='+bbox+'&layer=mapnik&marker='+v.lat+','+v.lng;
+  var mapLink='https://www.openstreetmap.org/?mlat='+v.lat+'&mlon='+v.lng+'#map=17/'+v.lat+'/'+v.lng;
+  $('#evPanel').innerHTML =
+   '<div class="sc"><div class="hero" style="background-image:'+cover(e)+'"></div>'+
+   '<div class="body"><div class="badges">'+badges+'</div><h1>'+esc(tx.title)+'</h1>'+
+   '<div class="info">'+
+    '<div class="ir">'+IC.clock+'<div><b>'+when+'</b>'+was+'</div></div>'+
+    '<div class="ir">'+IC.pin+'<div><b>'+esc(v[S.lang])+'</b><span>'+esc(S.lang==='ru'?v.aru:v.auz)+'</span></div></div>'+
+    '<div class="ir">'+IC.tag+'<div>'+priceLine+'</div></div></div>'+
+   '<p>'+esc(tx.desc)+'</p>'+
+   '<div class="map"><iframe loading="lazy" title="map" src="'+mapSrc+'" onload="this.parentNode.classList.add(\'ok\')"></iframe></div>'+
+   '<a class="link" href="'+mapLink+'" target="_blank" rel="noopener" data-ext>'+IC.ext+T('openMap')+'</a>'+
+   '<button class="link" data-ics="'+id+'">'+IC.plus+T('addCal')+'</button></div></div>'+
+   '<button class="hbtn l" data-close aria-label="'+T('back')+'">'+IC.back+'</button>'+
+   '<button class="hbtn r2" data-share="'+id+'" aria-label="'+T('share')+'">'+IC.share+'</button>'+
+   '<button class="hbtn r" aria-pressed="'+fav+'" data-fav="'+id+'" aria-label="'+T('fav')+'">'+IC.heart+'</button>'+
+   '<div class="cta"><button class="main" data-ticket>'+cta+' '+IC.ext.replace('<svg','<svg style="width:19px;height:19px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"')+'</button></div>';
+  $('#evPanel .sc').scrollTop=0;
+  $('#evSheet').classList.add('open');
+  document.body.style.overflow='hidden';
+  var t=getTg(); try{ if(t && t.BackButton){ t.BackButton.show(); } }catch(err){}
+  if(!fromHash){ try{ history.pushState({ev:id},'','#event-'+id); }catch(err){} }
+}
+function closeEvent(fromPop){
+  $('#evSheet').classList.remove('open'); document.body.style.overflow=''; openId=null;
+  var t=getTg(); try{ if(t && t.BackButton) t.BackButton.hide(); }catch(e){}
+  if(!fromPop && /^#event-/.test(location.hash)){ try{ history.back(); }catch(e){} }
+}
+function openSettings(){
+  var seg=function(attr,items,cur){ return '<div class="seg">'+items.map(function(it){return '<button '+attr+'="'+it[0]+'" aria-pressed="'+(cur===it[0])+'">'+it[1]+'</button>';}).join('')+'</div>'; };
+  $('#setPanel').innerHTML='<h2>'+T('settings')+'</h2><div class="set-l">'+T('lang')+'</div>'+
+    seg('data-lang',[['ru','Русский'],['uz',"Oʻzbekcha"]],S.lang)+
+    '<div class="set-l">'+T('theme')+'</div>'+seg('data-theme',[['tg',T('tTg')],['light',T('tLight')],['dark',T('tDark')]],S.theme)+
+    '<div class="about">'+T('about')+'</div>';
+  $('#setSheet').classList.add('open');
+}
+function closeSettings(){ $('#setSheet').classList.remove('open'); }
+
+function toast(msg){ var t=$('#toast'); t.textContent=msg; t.classList.add('on'); clearTimeout(toast.h); toast.h=setTimeout(function(){t.classList.remove('on');},2200); }
+function haptic(){ var t=getTg(); try{ t && t.HapticFeedback && t.HapticFeedback.selectionChanged(); }catch(e){} }
+
+function toggleFav(id){
+  var i=S.favs.indexOf(id); if(i>-1) S.favs.splice(i,1); else S.favs.push(id);
+  save('favs',S.favs); haptic();
+  render();
+  if(openId===id){ var b=$('#evPanel .hbtn.r'); if(b) b.setAttribute('aria-pressed', isFav(id)); }
+}
+function pad(n){ return String(n).padStart(2,'0'); }
+function downloadIcs(id){
+  var e=EVENTS.filter(function(x){return x.id===id;})[0], v=VENUES[e.v], tx=e[S.lang];
+  var d=e.date, hh=+e.t.slice(0,2), mm=+e.t.slice(3);
+  var st=''+d.getFullYear()+pad(d.getMonth()+1)+pad(d.getDate())+'T'+pad(hh)+pad(mm)+'00';
+  var en=''+d.getFullYear()+pad(d.getMonth()+1)+pad(d.getDate())+'T'+pad(Math.min(hh+2,23))+pad(mm)+'00';
+  var ics=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Afisha//RU','BEGIN:VEVENT','UID:ev'+id+'@afisha','DTSTART;TZID=Asia/Samarkand:'+st,'DTEND;TZID=Asia/Samarkand:'+en,'SUMMARY:'+tx.title,'LOCATION:'+v[S.lang],'END:VEVENT','END:VCALENDAR'].join('\r\n');
+  var a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([ics],{type:'text/calendar'})); a.download='event-'+id+'.ics';
+  document.body.appendChild(a); a.click(); setTimeout(function(){document.body.removeChild(a); URL.revokeObjectURL(a.href);},500);
+  toast(T('icsDone'));
+}
+function shareEvent(id){
+  var e=EVENTS.filter(function(x){return x.id===id;})[0], url=location.href.split('#')[0]+'#event-'+id, t=getTg();
+  if(t && t.openTelegramLink){ try{ t.openTelegramLink('https://t.me/share/url?url='+encodeURIComponent(url)+'&text='+encodeURIComponent(e[S.lang].title)); return; }catch(err){} }
+  if(navigator.share){ navigator.share({title:e[S.lang].title,url:url}).catch(function(){}); return; }
+  try{ navigator.clipboard.writeText(url).then(function(){toast(T('linkCopied'));}); }catch(err){ toast(url); }
+}
+
+/* ---------- события ---------- */
+document.addEventListener('click', function(ev){
+  var el=ev.target.closest('[data-fav],[data-open],[data-d],[data-day],[data-k],[data-f],[data-c],[data-tab],[data-cm],[data-cd],[data-settings],[data-close],[data-lang],[data-theme],[data-reset],[data-clear],[data-share],[data-ics],[data-ticket]');
+  if(!el) return;
+  if(el.hasAttribute('data-fav')){ ev.stopPropagation(); toggleFav(+el.getAttribute('data-fav')); return; }
+  if(el.hasAttribute('data-open')){ openEvent(+el.getAttribute('data-open')); return; }
+  if(el.hasAttribute('data-close')){ if($('#setSheet').classList.contains('open')&&el.closest('#setSheet')) closeSettings(); else closeEvent(); return; }
+  if(el.hasAttribute('data-settings')){ openSettings(); return; }
+  if(el.hasAttribute('data-lang')){ S.lang=el.getAttribute('data-lang'); save('lang',S.lang); document.documentElement.lang=S.lang==='uz'?'uz':'ru'; render(); openSettings(); if(openId) openEvent(openId,true); return; }
+  if(el.hasAttribute('data-theme')){ S.theme=el.getAttribute('data-theme'); save('theme',S.theme); applyTheme(); openSettings(); return; }
+  if(el.hasAttribute('data-share')){ shareEvent(+el.getAttribute('data-share')); return; }
+  if(el.hasAttribute('data-ics')){ downloadIcs(+el.getAttribute('data-ics')); return; }
+  if(el.hasAttribute('data-ticket')){ toast(T('demoLink')); return; }
+  if(el.hasAttribute('data-tab')){ S.tab=el.getAttribute('data-tab'); if(S.tab!=='cal') {} haptic(); render(); window.scrollTo(0,0); return; }
+  if(el.hasAttribute('data-d')){ var d=el.getAttribute('data-d'); S.date = d==='all'? null : (S.date===d? null : d); render(); return; }
+  if(el.hasAttribute('data-day')){ var k=el.getAttribute('data-day'); S.date = S.date===k? null : k; render(); return; }
+  if(el.hasAttribute('data-cd')){ var k2=el.getAttribute('data-cd'); S.date = S.date===k2? null : k2; render(); return; }
+  if(el.hasAttribute('data-cm')){ var n=+el.getAttribute('data-cm'); S.calM+=n; if(S.calM<0){S.calM=11;S.calY--;} if(S.calM>11){S.calM=0;S.calY++;} S.date=null; render(); return; }
+  if(el.hasAttribute('data-k')){ S.kids=!S.kids; render(); return; }
+  if(el.hasAttribute('data-f')){ S.free=!S.free; render(); return; }
+  if(el.hasAttribute('data-c')){ var c=el.getAttribute('data-c'); S.cat = c && S.cat!==c ? c : null; render(); return; }
+  if(el.hasAttribute('data-reset')){ S.date=null;S.cat=null;S.kids=false;S.free=false;S.q=''; render(); return; }
+  if(el.hasAttribute('data-clear')){ S.q=''; render(); return; }
+});
+document.addEventListener('keydown', function(ev){ if((ev.key==='Enter'||ev.key===' ') && ev.target.matches && ev.target.matches('.card')){ ev.preventDefault(); openEvent(+ev.target.getAttribute('data-open')); } });
+document.addEventListener('input', function(ev){ if(ev.target.id==='q'){ S.q=ev.target.value.trim(); var box=ev.target.parentNode; box.classList.toggle('has',!!S.q); render(); } });
+window.addEventListener('popstate', function(){
+  var m=location.hash.match(/^#event-(\d+)/);
+  if(m) openEvent(+m[1],true); else if(openId) closeEvent(true);
+});
+
+/* ---------- запуск ---------- */
+function init(){
+  tg = getTg();
+  if(tg){ try{ tg.ready(); tg.expand(); tg.onEvent && tg.onEvent('themeChanged', applyTheme); tg.BackButton && tg.BackButton.onClick(function(){ closeEvent(); }); }catch(e){} }
+  if(!S.lang){
+    var code=''; try{ code = (tg && tg.initDataUnsafe && tg.initDataUnsafe.user && tg.initDataUnsafe.user.language_code) || navigator.language || ''; }catch(e){}
+    S.lang = /^uz/i.test(code)? 'uz' : 'ru';
+  }
+  document.documentElement.lang = S.lang==='uz'?'uz':'ru';
+  applyTheme(); render();
+  var m=location.hash.match(/^#event-(\d+)/); if(m) openEvent(+m[1],true);
+  var u=new URLSearchParams(location.search);
+  if(u.get('lang')==='uz'||u.get('lang')==='ru'){ S.lang=u.get('lang'); render(); }
+  if(u.get('theme')){ S.theme=u.get('theme'); applyTheme(); }
+  if(u.get('tab')){ S.tab=u.get('tab'); render(); }
+  window.addEventListener('load', function(){ if(getTg()){ tg=getTg(); try{tg.ready();tg.expand();tg.onEvent('themeChanged',applyTheme);tg.BackButton&&tg.BackButton.onClick(function(){closeEvent();});}catch(e){} if(load('lang',null)===null){ var lc=''; try{lc=(tg.initDataUnsafe&&tg.initDataUnsafe.user&&tg.initDataUnsafe.user.language_code)||'';}catch(e){} var nl=/^uz/i.test(lc)?'uz':(lc?'ru':S.lang); if(nl!==S.lang){ S.lang=nl; document.documentElement.lang=nl; } } applyTheme(); render(); } });
+  if(window.matchMedia) try{ matchMedia('(prefers-color-scheme: light)').addEventListener('change', applyTheme); }catch(e){}
+}
+init();
+window.__afisha = { S:S, render:render, openEvent:openEvent };
+})();
+</script>
+</body>
+</html>
